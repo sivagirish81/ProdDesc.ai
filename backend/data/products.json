@@ -1,0 +1,362 @@
+[
+  {
+    "id": "prod001",
+    "name": "Ultra-Comfort Running Shoes",
+    "price": 89.99,
+    "brand": "SportsFlex",
+    "basic_description": "Lightweight running shoes with responsive cushioning and breathable mesh upper.",
+    "category": "Footwear",
+    "subcategory": "Running",
+    "features": ["Responsive cushioning", "Breathable mesh", "Durable outsole"],
+    "materials": ["Synthetic mesh", "Rubber outsole", "EVA foam midsole"],
+    "colors": ["Black/Red", "Blue/White", "Grey/Orange"],
+    "tags": ["running", "athletic", "comfortable", "lightweight"],
+    "image_url": "https://example.com/images/shoes123.jpg",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod002",
+    "name": "Wireless Noise-Cancelling Headphones",
+    "price": 199.99,
+    "brand": "SoundTech",
+    "basic_description": "Premium wireless headphones with active noise cancellation and long battery life.",
+    "category": "Electronics",
+    "subcategory": "Audio",
+    "features": ["Active noise cancellation", "30-hour battery life", "High-definition sound", "Comfortable ear cushions"],
+    "materials": ["Premium leather", "Memory foam cushions", "Aluminum frame"],
+    "colors": ["Black", "Silver", "Midnight Blue"],
+    "tags": ["headphones", "wireless", "noise-cancelling", "audio", "premium"],
+    "image_url": "https://example.com/images/headphones456.jpg",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod003",
+    "name": "Organic Cotton T-Shirt",
+    "price": 29.99,
+    "brand": "EcoApparel",
+    "basic_description": "Soft, eco-friendly t-shirt made from 100% organic cotton.",
+    "category": "Clothing",
+    "subcategory": "",
+    "features": ["100% organic cotton", "Pre-shrunk", "Tagless design"],
+    "materials": [],
+    "colors": ["White", "Black", "Navy", "Forest Green", "Heather Grey"],
+    "tags": ["eco-friendly", "organic", "cotton", "casual", "sustainable"],
+    "image_url": "https://example.com/images/tshirt789.jpg",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod004",
+    "name": "Smart Home Security Camera",
+    "price": 149.99,
+    "brand": "SecureTech",
+    "basic_description": "HD security camera with motion detection and two-way audio.",
+    "category": "Electronics",
+    "subcategory": "",
+    "features": [],
+    "materials": [],
+    "colors": ["Black", "White"],
+    "tags": [],
+    "image_url": "https://example.com/images/camera321.jpg",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod005",
+    "name": "Stainless Steel Water Bottle",
+    "price": 34.99,
+    "brand": "HydroKeep",
+    "basic_description": "Double-walled insulated water bottle that keeps drinks cold for 24 hours or hot for 12 hours.",
+    "category": "",
+    "subcategory": "",
+    "features": ["Double-wall insulation", "Leak-proof lid", "BPA-free", "24-hour cold retention", "12-hour hot retention"],
+    "materials": ["18/8 stainless steel", "Silicone seal", "BPA-free plastic cap"],
+    "colors": ["Matte Black", "Ocean Blue", "Forest Green", "Rose Gold"],
+    "tags": ["hydration", "reusable", "eco-friendly", "insulated"],
+    "image_url": "https://example.com/images/bottle567.jpg",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod006",
+    "name": "Ergonomic Office Chair",
+    "price": 249.99,
+    "brand": "ComfortDesk",
+    "basic_description": "Adjustable office chair with lumbar support and breathable mesh back.",
+    "category": "Furniture",
+    "subcategory": "Office",
+    "features": [],
+    "materials": [],
+    "colors": ["Black", "Grey"],
+    "tags": [],
+    "image_url": "",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod007",
+    "name": "Professional Blender",
+    "price": 179.99,
+    "brand": "KitchenPro",
+    "basic_description": "High-powered blender for smoothies, soups, and more.",
+    "category": "Kitchen",
+    "subcategory": "Appliances",
+    "features": ["1200-watt motor", "Variable speed control", "Pulse function", "64 oz container"],
+    "materials": ["BPA-free plastic", "Stainless steel blades"],
+    "colors": ["Silver", "Black", "Red"],
+    "tags": ["blender", "kitchen", "smoothie", "cooking"],
+    "image_url": "https://example.com/images/blender789.jpg",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod008",
+    "name": "Yoga Mat",
+    "price": 39.99,
+    "brand": "ZenFitness",
+    "basic_description": "Non-slip yoga mat with alignment markings.",
+    "category": "Fitness",
+    "subcategory": "Yoga",
+    "features": [],
+    "materials": [],
+    "colors": ["Purple", "Blue", "Black", "Green"],
+    "tags": [],
+    "image_url": "",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod009",
+    "name": "Smart Watch",
+    "price": 299.99,
+    "brand": "TechWear",
+    "basic_description": "Fitness tracker and smartwatch with heart rate monitoring and GPS.",
+    "category": "Electronics",
+    "subcategory": "Wearables",
+    "features": ["Heart rate monitor", "GPS tracking", "Water resistant", "Sleep tracking", "7-day battery life"],
+    "materials": ["Aluminum case", "Silicone band", "Gorilla glass"],
+    "colors": ["Black", "Silver", "Rose Gold"],
+    "tags": ["smartwatch", "fitness", "tracking", "wearable", "health"],
+    "image_url": "https://example.com/images/watch123.jpg",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod010",
+    "name": "French Press Coffee Maker",
+    "price": 44.99,
+    "brand": "BrewMaster",
+    "basic_description": "Classic coffee press for rich, flavorful coffee.",
+    "category": "",
+    "subcategory": "",
+    "features": [],
+    "materials": [],
+    "colors": ["Stainless Steel", "Copper", "Matte Black"],
+    "tags": [],
+    "image_url": "",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod011",
+    "name": "Leather Crossbody Bag",
+    "price": 129.99,
+    "brand": "UrbanStyle",
+    "basic_description": "Genuine leather crossbody bag with adjustable strap and multiple compartments.",
+    "category": "Accessories",
+    "subcategory": "Bags",
+    "features": ["Genuine leather", "Adjustable strap", "Multiple pockets", "Zipper closure"],
+    "materials": ["Full-grain leather", "Brass hardware", "Cotton lining"],
+    "colors": ["Brown", "Black", "Tan", "Navy"],
+    "tags": ["leather", "bag", "crossbody", "fashion", "accessories"],
+    "image_url": "https://example.com/images/bag456.jpg",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod012",
+    "name": "Portable Bluetooth Speaker",
+    "price": 79.99,
+    "brand": "SoundTech",
+    "basic_description": "Waterproof portable speaker with 360° sound.",
+    "category": "Electronics",
+    "subcategory": "",
+    "features": [],
+    "materials": [],
+    "colors": ["Black", "Blue", "Red", "Grey"],
+    "tags": [],
+    "image_url": "",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod013",
+    "name": "Adjustable Dumbbell Set",
+    "price": 299.99,
+    "brand": "FitPro",
+    "basic_description": "Space-saving adjustable dumbbells that replace 15 sets of weights.",
+    "category": "Fitness",
+    "subcategory": "Weights",
+    "features": ["Adjustable 5-52.5 lbs each", "Quick weight selection", "Compact design", "Durable construction"],
+    "materials": ["Steel plates", "Durable plastic handle", "Chrome-plated knobs"],
+    "colors": ["Black/Chrome"],
+    "tags": ["fitness", "weights", "adjustable", "home gym", "strength training"],
+    "image_url": "https://example.com/images/dumbbells789.jpg",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod014",
+    "name": "Ceramic Non-Stick Pan Set",
+    "price": 89.99,
+    "brand": "KitchenPro",
+    "basic_description": "3-piece ceramic-coated cookware set.",
+    "category": "",
+    "subcategory": "",
+    "features": [],
+    "materials": [],
+    "colors": ["Black", "Red", "Blue"],
+    "tags": [],
+    "image_url": "",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  },
+  {
+    "id": "prod015",
+    "name": "Indoor Plant Collection",
+    "price": 49.99,
+    "brand": "GreenLife",
+    "basic_description": "Set of 3 easy-care indoor plants in decorative pots.",
+    "category": "Home",
+    "subcategory": "Plants",
+    "features": ["Low maintenance", "Air purifying", "Decorative pots included", "Care instructions included"],
+    "materials": ["Ceramic pots", "Potting soil", "Live plants"],
+    "colors": ["Varied greens", "White pots"],
+    "tags": ["plants", "indoor", "decor", "air purifying", "gift"],
+    "image_url": "https://example.com/images/plants321.jpg",
+    "seo_title": "",
+    "seo_description": "",
+    "detailed_description": "",
+    "marketing_copy": {
+      "email": "",
+      "social_media": {
+        "instagram": "",
+        "facebook": ""
+      }
+    }
+  }
+]
