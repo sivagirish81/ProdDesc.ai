@@ -111,7 +111,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/preview"
+                    path="/preview/:productId"
                     element={
                       <ProtectedRoute>
                         <ContentPreview />

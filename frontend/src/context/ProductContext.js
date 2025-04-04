@@ -1,80 +1,80 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchProducts, fetchProduct, generateContent, completeProduct, generateProductImages } from '../services/api';
 import { useAuth } from './AuthContext';
+import { 
+  fetchProducts, 
+  fetchProduct, 
+  createProduct, 
+  updateProduct, 
+  generateSectionContent,
+  generateProductImages 
+} from '../services/api';
 
 const ProductContext = createContext();
 
-export function ProductProvider({ children }) {
-  // State for product data
+export const useProduct = () => {
+  return useContext(ProductContext);
+};
+
+export const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [generatedContent, setGeneratedContent] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
   const { user } = useAuth();
 
-  // Fetch products on component mount or when user changes
   useEffect(() => {
     const loadProducts = async () => {
-      if (!user) return; // Don't fetch products if user is not logged in
-      
-      try {
-        setIsLoading(true);
-        setError(null);
-        const data = await fetchProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        if (error.response?.status === 401) {
-          setError('Authentication error. Please log in again.');
-        } else {
-          setError('Failed to load products. Please try again later.');
+      if (user) {
+        try {
+          setIsLoading(true);
+          setError('');
+          const data = await fetchProducts();
+          setProducts(data);
+        } catch (error) {
+          setError(error.message || 'Failed to load products');
+          if (error.response?.status === 401) {
+            // Handle authentication error
+            setProducts([]);
+          }
+        } finally {
+          setIsLoading(false);
         }
-      } finally {
-        setIsLoading(false);
       }
     };
-    
+
     loadProducts();
   }, [user]);
 
-  // Function to fetch a product by ID
-  const fetchProductById = async (productId) => {
+  const fetchProductById = async (id) => {
     try {
       setIsLoading(true);
-      setError(null);
-      const product = await fetchProduct(productId);
-      return product;
+      setError('');
+      const data = await fetchProduct(id);
+      return data;
     } catch (error) {
-      console.error('Error fetching product:', error);
-      if (error.response?.status === 401) {
-        setError('Authentication error. Please log in again.');
-      } else {
-        setError('Failed to load product. Please try again later.');
-      }
+      setError(error.message || 'Failed to fetch product');
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Function to save a completed product
   const saveProduct = async (productData) => {
     try {
       setIsLoading(true);
-      setError(null);
-      const savedProduct = await completeProduct(productData);
-      
-      // Update products list with the new product
-      setProducts(prevProducts => [...prevProducts, savedProduct]);
-      
+      setError('');
+      let savedProduct;
+      if (productData.id) {
+        savedProduct = await updateProduct(productData.id, productData);
+      } else {
+        savedProduct = await createProduct(productData);
+      }
       return savedProduct;
     } catch (error) {
-      console.error('Error saving product:', error);
+      setError(error.message || 'Failed to save product');
       if (error.response?.status === 401) {
-        setError('Authentication error. Please log in again.');
-      } else {
-        setError('Failed to save product. Please try again.');
+        // Handle authentication error
       }
       throw error;
     } finally {
@@ -82,20 +82,14 @@ export function ProductProvider({ children }) {
     }
   };
 
-  // Function to generate product images
-  const generateImages = async (productId, imageOptions) => {
+  const generateImages = async (productId, options) => {
     try {
       setIsLoading(true);
-      setError(null);
-      const images = await generateProductImages(productId);
-      return images;
+      setError('');
+      const data = await generateProductImages(productId, options);
+      return data;
     } catch (error) {
-      console.error('Error generating images:', error);
-      if (error.response?.status === 401) {
-        setError('Authentication error. Please log in again.');
-      } else {
-        setError('Failed to generate images. Please try again.');
-      }
+      setError(error.message || 'Failed to generate images');
       throw error;
     } finally {
       setIsLoading(false);
@@ -110,21 +104,15 @@ export function ProductProvider({ children }) {
     generatedContent,
     setGeneratedContent,
     isLoading,
-    setIsLoading,
     error,
-    setError,
+    fetchProductById,
     saveProduct,
-    generateImages,
-    fetchProductById
+    generateImages
   };
 
-  return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
-}
-
-export function useProduct() {
-  const context = useContext(ProductContext);
-  if (!context) {
-    throw new Error('useProduct must be used within a ProductProvider');
-  }
-  return context;
-} 
+  return (
+    <ProductContext.Provider value={value}>
+      {children}
+    </ProductContext.Provider>
+  );
+}; 

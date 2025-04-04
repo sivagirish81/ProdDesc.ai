@@ -18,7 +18,7 @@ import {
   Divider,
 } from '@mui/material';
 import { useProduct } from '../context/ProductContext';
-import { generateContent } from '../services/api';
+import { createProduct, generateSectionContent } from '../services/api';
 
 function ProductForm() {
   const navigate = useNavigate();
@@ -60,17 +60,14 @@ function ProductForm() {
       setError('');
       setGenerationComplete(false);
 
-      // Create a custom product object
-      const customProduct = {
-        ...formData,
-        id: 'custom-' + Date.now(), // Temporary ID for custom product
-      };
+      // First create the product
+      const createdProduct = await createProduct(formData);
 
       // Set the selected product in context
-      setSelectedProduct(customProduct);
+      setSelectedProduct(createdProduct);
 
-      // Generate content
-      const content = await generateContent(customProduct);
+      // Generate content with form data using the created product's ID
+      const content = await generateSectionContent(createdProduct.id, 'product', formData);
       setGeneratedContent(content);
       setGenerationComplete(true);
     } catch (error) {

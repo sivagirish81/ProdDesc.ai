@@ -1,361 +1,136 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
   Paper,
   Typography,
   Box,
-  Button,
-  Grid,
-  Divider,
+  Tabs,
+  Tab,
   CircularProgress,
   Alert,
-  TextField,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
-import {
-  Save as SaveIcon,
-  Edit as EditIcon,
-  Check as CheckIcon,
-  Close as CloseIcon,
-  ArrowBack as ArrowBackIcon,
-} from '@mui/icons-material';
-import { useProduct } from '../context/ProductContext';
+import { fetchProduct } from '../services/api';
 
 function ContentPreview() {
-  const navigate = useNavigate();
   const { productId } = useParams();
-  const { 
-    selectedProduct, 
-    generatedContent, 
-    setGeneratedContent, 
-    isLoading, 
-    error,
-    saveProduct,
-    fetchProductById
-  } = useProduct();
-  
-  const [editedContent, setEditedContent] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState('');
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [loadingProduct, setLoadingProduct] = useState(false);
-  const [productError, setProductError] = useState('');
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [product, setProduct] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
 
-  // Load product data if productId is provided (for existing products)
   useEffect(() => {
     const loadProduct = async () => {
-      if (productId && !selectedProduct) {
-        try {
-          setLoadingProduct(true);
-          setProductError('');
-          const product = await fetchProductById(productId);
-          if (product && product.content) {
-            setEditedContent(product.content);
-          }
-        } catch (error) {
-          setProductError(error.message || 'Failed to load product');
-        } finally {
-          setLoadingProduct(false);
-        }
+      try {
+        setLoading(true);
+        setError('');
+        const data = await fetchProduct(productId);
+        setProduct(data);
+      } catch (error) {
+        console.error('Error loading product:', error);
+        setError(error.message || 'Failed to load product');
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadProduct();
-  }, [productId, selectedProduct, fetchProductById]);
-
-  // Update edited content when generated content changes
-  useEffect(() => {
-    if (generatedContent) {
-      setEditedContent(generatedContent);
+    if (productId) {
+      loadProduct();
     }
-  }, [generatedContent]);
+  }, [productId]);
 
-  const handleEdit = () => {
-    setIsEditing(true);
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
   };
 
-  const handleCancel = () => {
-    setEditedContent(generatedContent || {});
-    setIsEditing(false);
-  };
-
-  const handleSave = () => {
-    setIsEditing(false);
-  };
-
-  const handleContentChange = (key, value) => {
-    setEditedContent(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
-
-  const handleSaveToDatabase = async () => {
-    try {
-      setSaving(true);
-      setSaveError('');
-      setSaveSuccess(false);
-      
-      // Prepare product data with the edited content
-      const productData = {
-        ...selectedProduct,
-        content: editedContent
-      };
-      
-      // Save the product
-      await saveProduct(productData);
-      
-      setSaveSuccess(true);
-      
-      // Navigate back to home after a short delay
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-    } catch (error) {
-      setSaveError(error.message || 'Failed to save product. Please try again.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleBack = () => {
-    navigate('/generate');
-  };
-
-  // Show loading state while fetching product data
-  if (loadingProduct) {
+  if (loading) {
     return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
         <CircularProgress />
-      </Container>
+      </Box>
     );
   }
 
-  // Show error if product loading failed
-  if (productError) {
-    return (
-      <Container sx={{ mt: 4 }}>
-        <Alert severity="error">{productError}</Alert>
-        <Button 
-          variant="contained" 
-          startIcon={<ArrowBackIcon />} 
-          onClick={handleBack}
-          sx={{ mt: 2 }}
-        >
-          Go Back
-        </Button>
-      </Container>
-    );
-  }
-
-  // Show loading state while generating content
-  if (isLoading) {
-    return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-        <CircularProgress />
-      </Container>
-    );
-  }
-
-  // Show error if content generation failed
   if (error) {
     return (
-      <Container sx={{ mt: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="error">{error}</Alert>
-        <Button 
-          variant="contained" 
-          startIcon={<ArrowBackIcon />} 
-          onClick={handleBack}
-          sx={{ mt: 2 }}
-        >
-          Go Back
-        </Button>
       </Container>
     );
   }
 
-  // Show empty state if no product or content is available
-  if (!selectedProduct && !productId) {
+  if (!product) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="h5" gutterBottom>
-            No Product Selected
-          </Typography>
-          <Typography variant="body1" color="text.secondary" paragraph>
-            Please generate a new product or select an existing one to preview.
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<ArrowBackIcon />}
-            onClick={handleBack}
-            sx={{ mt: 2 }}
-          >
-            Go to Generate
-          </Button>
-        </Paper>
-      </Container>
-    );
-  }
-
-  // Show warning if no content is available
-  if (!generatedContent && !editedContent) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="h5" gutterBottom>
-            No Content Available
-          </Typography>
-          <Typography variant="body1" color="text.secondary" paragraph>
-            This product doesn't have any generated content yet.
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<ArrowBackIcon />}
-            onClick={handleBack}
-            sx={{ mt: 2 }}
-          >
-            Go Back
-          </Button>
-        </Paper>
+        <Alert severity="warning">Product not found</Alert>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Paper sx={{ p: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" component="h1">
-            Content Preview
-          </Typography>
-          <Box>
-            {isEditing ? (
-              <>
-                <Tooltip title="Save Changes">
-                  <IconButton color="primary" onClick={handleSave}>
-                    <CheckIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Cancel">
-                  <IconButton color="error" onClick={handleCancel}>
-                    <CloseIcon />
-                  </IconButton>
-                </Tooltip>
-              </>
-            ) : (
-              <Tooltip title="Edit Content">
-                <IconButton color="primary" onClick={handleEdit}>
-                  <EditIcon />
-                </IconButton>
-              </Tooltip>
-            )}
-            <Tooltip title="Save to Database">
-              <IconButton 
-                color="success" 
-                onClick={handleSaveToDatabase}
-                disabled={saving}
-              >
-                <SaveIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
-
-        {selectedProduct && (
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Product Information
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle1">
-                  <strong>Name:</strong> {selectedProduct.name}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle1">
-                  <strong>Price:</strong> ${selectedProduct.price}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="subtitle1">
-                  <strong>Description:</strong> {selectedProduct.basic_description}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Box>
-        )}
-
-        <Divider sx={{ my: 3 }} />
-
-        <Typography variant="h6" gutterBottom>
-          Generated Content
+    <Container maxWidth="xl" sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      minHeight: '100vh', // Full viewport height
+      width: '95vw', // Full viewport width
+      padding: 2,
+      transform: 'translateX(-2.0%)'
+    }}>
+      <Paper sx={{ p: 4, flexGrow: 1 }}>
+        <Typography variant="h4" gutterBottom>
+          {product.name}
         </Typography>
 
-        {saveError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {saveError}
-          </Alert>
-        )}
-
-        {saveSuccess && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            Product saved successfully! Redirecting to home page...
-          </Alert>
-        )}
-
-        <Grid container spacing={3}>
-          {Object.entries(editedContent).map(([key, value]) => (
-            <Grid item xs={12} key={key}>
-              <Typography variant="subtitle1" gutterBottom>
-                {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-              </Typography>
-              {isEditing ? (
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={4}
-                  value={value}
-                  onChange={(e) => handleContentChange(key, e.target.value)}
-                  variant="outlined"
-                />
-              ) : (
-                <Paper variant="outlined" sx={{ p: 2, bgcolor: 'background.default' }}>
-                  <Typography variant="body1" style={{ whiteSpace: 'pre-wrap' }}>
-                    {value}
-                  </Typography>
-                </Paper>
-              )}
-            </Grid>
-          ))}
-        </Grid>
-
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            onClick={handleBack}
-          >
-            Back to Generate
-          </Button>
-          
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSaveToDatabase}
-            disabled={saving}
-            startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
-          >
-            {saving ? 'Saving...' : 'Save Product'}
-          </Button>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Tabs value={activeTab} onChange={handleTabChange}>
+            <Tab label="Description" />
+            <Tab label="Features" />
+            <Tab label="Benefits" />
+            <Tab label="Specifications" />
+          </Tabs>
         </Box>
+
+        {activeTab === 0 && (
+          <Box>
+            <Typography variant="h6" gutterBottom>Product Description</Typography>
+            <Typography paragraph>{product.description || product.basic_description}</Typography>
+          </Box>
+        )}
+
+        {activeTab === 1 && (
+          <Box>
+            <Typography variant="h6" gutterBottom>Features</Typography>
+            {product.features && product.features.length > 0 ? (
+              <ul>
+                {product.features.map((feature, index) => (
+                  <li key={index}>
+                    <Typography>{feature}</Typography>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Typography color="text.secondary">No features available</Typography>
+            )}
+          </Box>
+        )}
+
+        {activeTab === 2 && (
+          <Box>
+            <Typography variant="h6" gutterBottom>Benefits</Typography>
+            <Typography paragraph>{product.benefits || 'No benefits available'}</Typography>
+          </Box>
+        )}
+
+        {activeTab === 3 && (
+          <Box>
+            <Typography variant="h6" gutterBottom>Specifications</Typography>
+            <Typography paragraph>{product.specifications || 'No specifications available'}</Typography>
+          </Box>
+        )}
       </Paper>
     </Container>
   );
 }
 
-export default ContentPreview; 
+export default ContentPreview;
