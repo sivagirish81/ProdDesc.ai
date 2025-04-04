@@ -129,15 +129,22 @@ export const AuthProvider = ({ children }) => {
         password: password
       });
       
-      const { access_token, refresh_token, user: userData } = response.data;
+      const { access_token, refresh_token } = response.data;
       
+      // Store tokens
       localStorage.setItem('token', access_token);
       localStorage.setItem('refreshToken', refresh_token);
+      
+      // Set default authorization header
       axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       
-      setUser(userData);
-      return userData;
+      // Fetch user data after successful login
+      const userResponse = await axios.get(`${API_URL}/api/auth/me`);
+      setUser(userResponse.data);
+      
+      return userResponse.data;
     } catch (error) {
+      console.error('Login error:', error);
       throw new Error(error.response?.data?.detail || 'Login failed');
     }
   };
