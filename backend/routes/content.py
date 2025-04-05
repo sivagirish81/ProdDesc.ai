@@ -1,3 +1,4 @@
+from services import openai_service
 from fastapi import APIRouter, Depends, HTTPException, status
 from pymongo.database import Database
 from models.user import User
@@ -34,21 +35,43 @@ async def generate_content(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Product not found"
             )
+        
+        required_fields = [
+            "name", "price", "brand", "category", "basic_description",
+            "features", "materials", "colors", "tags", "seo_title",
+            "seo_description", "detailed_description", "marketing_copy"
+        ]
 
-        # Generate content (placeholder logic)
-        generated_content = {
-            "description": "Generated product description",
-            "seo_title": "Generated SEO title",
-            "meta_description": "Generated meta description",
+        missing_fields = {field: None for field in required_fields if not product.get(field)}
+
+        if not missing_fields:
+            return {"message": "No missing fields to generate."}
+
+        generated_content = {}
+        for field in missing_fields:
+            if field in ["seo_title", "seo_description"]:
+                generated_content.update(
+                    openai_service.generate_seo_content(product, style={"tone": "professional"})
+                )
+            elif field == "detailed_description":
+                generated_content[field] = openai_service.generate_content(product).get("detailed_description")
+            elif field == "marketing_copy":
+                generated_content[field] = openai_service.generate_marketing_email(product, style={"tone": "engaging"})
+            else:
+                # Generate other fields (e.g., features, materials, etc.)
+                generated_content[field] = openai_service.generate_missing_fields(product, field).get(field)
+
+        # Update the database with the generated content
+        if product_id:
+            await db.products.update_one(
+                {"_id": product_id},
+                {"$set": generated_content}
+            )
+
+        return {
+            "message": "Missing content generated successfully.",
+            "generated_content": generated_content
         }
-
-        # Update product with generated content
-        await db.products.update_one(
-            {"_id": product_id},
-            {"$set": generated_content}
-        )
-
-        return {"message": "Content generated successfully", "generated_content": generated_content}
     except Exception as e:
         logger.error(f"Error generating content: {str(e)}")
         raise HTTPException(
