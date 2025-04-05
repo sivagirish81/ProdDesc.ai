@@ -5,6 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from routes.auth import router as auth_router
 from routes.products import router as products_router
 from routes.content_generation import router as content_generation_router
+from routes.content import router as content_router
 from utils.auth import get_current_user
 from models.user import User
 import os
@@ -42,6 +43,7 @@ def get_database():
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(products_router, prefix="/api", tags=["products"])
 app.include_router(content_generation_router, prefix="/api", tags=["content"])
+app.include_router(content_router, prefix="/api", tags=["content"])
 
 @app.on_event("startup")
 async def startup_event():

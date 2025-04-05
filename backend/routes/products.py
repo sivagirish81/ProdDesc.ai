@@ -22,8 +22,11 @@ async def create_product(
 ):
     try:
         # Create new product with user_id
+
+        user_id_str = str(current_user.id)
+
         new_product = Product(
-            user_id=current_user.id,
+            user_id=user_id_str,
             **product.model_dump()
         )
         
