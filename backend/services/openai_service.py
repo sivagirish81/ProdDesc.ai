@@ -2,6 +2,10 @@ from openai import AsyncOpenAI
 from models.product import Product
 import os
 from typing import Dict, Any
+from utils.prompts import get_prompt_for_field
+import logging
+
+logger = logging.getLogger(__name__)
 
 class OpenAIService:
     def __init__(self):
@@ -105,3 +109,33 @@ class OpenAIService:
             "colors": product.colors + [c.strip() for c in sections[2].split(",")],
             "tags": product.tags + [t.strip() for t in sections[3].split(",")]
         } 
+    
+    async def generate_missing_fields(self, product: Product, field: str) -> Dict[str, Any]:
+        """Generate missing fields for a product."""
+        # This method can be similar to complete_product or can be customized
+
+        return await self.complete_product(product)
+    
+    async def generate_missing_field(self, product: Product, field: str) -> Any:
+        """Generate content for a specific field of a product."""
+        try:
+            # Get the appropriate prompt for the field
+            logger.info(f"Generating content for field: {field}")
+            prompt = get_prompt_for_field(product, field)
+
+            # Call the OpenAI API with the prompt
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a product content generation expert."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=500
+            )
+
+            # Extract and return the generated content
+            content = response.choices[0].message.content.strip()
+            return content
+        except Exception as e:
+            raise ValueError(f"Error generating content for field '{field}': {str(e)}")

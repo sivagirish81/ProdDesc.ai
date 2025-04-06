@@ -12,6 +12,60 @@ from bson import ObjectId, errors as bson_errors
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+@router.post("/products/{product_id}/generate-field")
+async def generate_field(
+    product_id: str,
+    field: str,
+    current_user: User = Depends(get_current_user),
+    db: Database = Depends(get_database),
+    openai_service: OpenAIService = Depends()
+):
+    try:
+        # Convert product_id to ObjectId
+        try:
+            product_id = ObjectId(product_id)
+        except bson_errors.InvalidId:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid product ID"
+            )
+
+        # Get product
+        product_data = await db.products.find_one({"_id": product_id, "user_id": current_user.id})
+        if not product_data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Product not found"
+            )
+        
+        # Convert ObjectId fields to strings
+        if "_id" in product_data:
+            product_data["_id"] = str(product_data["_id"])
+        if "user_id" in product_data:
+            product_data["user_id"] = str(product_data["user_id"])
+
+        product = Product(**product_data)
+
+        # Generate content for the specified field
+        generated_content = await openai_service.generate_missing_field(product, field)
+
+        # Update the database with the generated content
+        await db.products.update_one(
+            {"_id": product_id},
+            {"$set": {field: generated_content}}
+        )
+
+        return {
+            "message": f"{field} generated successfully.",
+            "generated_content": generated_content
+        }
+    except Exception as e:
+        logger.error(f"Error generating field: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error generating field"
+        )
+    
 @router.post("/products/{product_id}/generate")
 async def generate_content(
     product_id: str,

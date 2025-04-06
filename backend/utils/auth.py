@@ -11,10 +11,11 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from bson import ObjectId
 from bson import errors as bson_errors
 import logging
+import os
 
 # Security configuration
-SECRET_KEY = "your-secret-key-here"  # Change this in production
-ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("JWT_SECRET", "jwt-proddesc.ai-dev")  # Change this in production
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
@@ -51,6 +52,7 @@ async def get_current_user(
     """Get current user from token"""
     try:
         # Decode token
+        logger.info(f"Decoding token: {token}")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         if not user_id:

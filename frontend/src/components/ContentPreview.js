@@ -76,6 +76,39 @@ function ContentPreview() {
     }
   };
 
+  const handleGenerateClick = async (field) => {
+    try {
+      setLoading(true);
+      setError('');
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:8000/api/products/${productId}/generate-field?field=${field}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to generate content');
+      }
+  
+      const data = await response.json();
+      setEditedContent(data.generated_content); // Set the generated content for editing
+      setIsEditing(true); // Enable editing mode
+    } catch (error) {
+      console.error('Error generating content:', error);
+      setError('Failed to generate content');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRevertClick = () => {
+    setIsEditing(false); // Exit editing mode
+    setEditedContent(''); // Clear the edited content
+  };
+
 
   const marketingTabs = ['Email', 'Instagram', 'Facebook', 'LinkedIn'];
 
@@ -149,9 +182,19 @@ function ContentPreview() {
             ) : (
               <>
                 <Typography paragraph>{product.description || product.basic_description}</Typography>
-                <Button variant="outlined" onClick={() => handleEditClick(product.description || product.basic_description)}>
-                  Edit
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                    Generate
+                  </Button>
+                  {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                  <Button variant="outlined" onClick={() => handleEditClick(product.description || product.basic_description)}>
+                    Edit
+                  </Button>
+                </Box>
               </>
             )}
           </Box>
@@ -186,9 +229,19 @@ function ContentPreview() {
                 ) : (
                   <Typography color="text.secondary">No features available</Typography>
                 )}
-                <Button variant="outlined" onClick={() => handleEditClick(product.features.join('\n'))}>
-                  Edit
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                    Generate
+                  </Button>
+                  {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                  <Button variant="outlined" onClick={() => handleEditClick(product.features.join('\n'))}>
+                    Edit
+                  </Button>
+                </Box>
               </>
             )}
           </Box>
@@ -223,9 +276,19 @@ function ContentPreview() {
                 ) : (
                   <Typography color="text.secondary">No materials available</Typography>
                 )}
-                <Button variant="outlined" onClick={() => handleEditClick(product.materials.join('\n'))}>
-                  Edit
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                    Generate
+                  </Button>
+                  {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                  <Button variant="outlined" onClick={() => handleEditClick(product.materials.join('\n'))}>
+                    Edit
+                  </Button>
+                </Box>
               </>
             )}
           </Box>
@@ -260,9 +323,19 @@ function ContentPreview() {
                 ) : (
                   <Typography color="text.secondary">No tags available</Typography>
                 )}
-                <Button variant="outlined" onClick={() => handleEditClick(product.tags.join(', '))}>
-                  Edit
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                    Generate
+                  </Button>
+                  {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                  <Button variant="outlined" onClick={() => handleEditClick(product.tags.join(', '))}>
+                    Edit
+                  </Button>
+                </Box>
               </>
             )}
           </Box>
@@ -296,9 +369,19 @@ function ContentPreview() {
                 ) : (
                   <Typography color="text.secondary">No image available</Typography>
                 )}
-                <Button variant="outlined" onClick={() => handleEditClick(product.image_url)}>
-                  Edit
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                    Generate
+                  </Button>
+                  {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                  <Button variant="outlined" onClick={() => handleEditClick(product.image_url)}>
+                    Edit
+                  </Button>
+                </Box>
               </>
             )}
           </Box>
@@ -336,9 +419,19 @@ function ContentPreview() {
                 <Typography>
                   <strong>Description:</strong> {product.seo_description || 'No SEO description available'}
                 </Typography>
-                <Button variant="outlined" onClick={() => handleEditClick(`${product.seo_title}\n${product.seo_description}`)}>
-                  Edit
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                    Generate
+                  </Button>
+                  {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                  <Button variant="outlined" onClick={() => handleEditClick(`${product.seo_title}\n${product.seo_description}`)}>
+                    Edit
+                  </Button>
+                </Box>
               </>
             )}
           </Box>
@@ -372,9 +465,19 @@ function ContentPreview() {
           ) : (
             <>
               <Typography>{product.marketing_copy.email || 'No email copy available'}</Typography>
-              <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.email)}>
-                Edit
-              </Button>
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                    Generate
+                </Button>
+                {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.email)}>
+                  Edit
+                </Button>
+              </Box>
             </>
           )}
         </>
@@ -397,9 +500,19 @@ function ContentPreview() {
           ) : (
             <>
               <Typography>{product.marketing_copy.social_media.instagram || 'No Instagram copy available'}</Typography>
-              <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.social_media.instagram)}>
-                Edit
-              </Button>
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                    Generate
+                </Button>
+                {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.social_media.instagram)}>
+                  Edit
+                </Button>
+              </Box>
             </>
           )}
         </>
@@ -422,9 +535,19 @@ function ContentPreview() {
           ) : (
             <>
               <Typography>{product.marketing_copy.social_media.facebook || 'No Facebook copy available'}</Typography>
-              <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.social_media.facebook)}>
-                Edit
-              </Button>
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                    Generate
+                </Button>
+                {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.social_media.facebook)}>
+                  Edit
+                </Button>
+              </Box>
             </>
           )}
         </>
@@ -447,9 +570,19 @@ function ContentPreview() {
           ) : (
             <>
               <Typography>{product.marketing_copy.social_media.linkedin || 'No LinkedIn copy available'}</Typography>
-              <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.social_media.linkedin)}>
-                Edit
-              </Button>
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                    Generate
+                  </Button>
+                  {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.social_media.linkedin)}>
+                  Edit
+                </Button>
+              </Box>
             </>
           )}
         </>
