@@ -117,7 +117,7 @@ export const generateSectionContent = async (id, section, formData) => {
       }
     };
 
-    const response = await api.post(`/api/products/${id}/generate`, requestBody);
+    const response = await api.post(`/api/products/${id}/generate-basic-data`, requestBody);
     return response.data;
   } catch (error) {
     console.error('Error generating content:', error);

@@ -97,7 +97,7 @@ function App() {
           <Router>
             <div className="app">
               <Navbar />
-              <main className="app-content">
+              <main className="app-content" style={{ paddingTop: '64px', minHeight: '100vh' }}>
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/login" element={<Login />} />

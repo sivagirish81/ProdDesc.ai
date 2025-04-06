@@ -10,6 +10,7 @@ import logging
 from datetime import datetime
 from bson import ObjectId, errors as bson_errors
 from motor.motor_asyncio import AsyncIOMotorCursor, AsyncIOMotorDatabase
+from utils.converter import convert_objectid_to_str
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -129,12 +130,24 @@ async def update_product(
         product.id = product_id
         product.user_id = current_user.id
         product.updated_at = datetime.utcnow()
+
+        logger.info(f"Updating product: {product.to_dict()}")
         
         await db.products.update_one(
             {"_id": ObjectId(product_id)},
             {"$set": product.to_dict()}
         )
-        return product
+
+        # Fetch the updated product
+        updated_product = await db.products.find_one({"_id": product_id})
+
+        # Convert ObjectId fields to strings
+        updated_product = convert_objectid_to_str(updated_product)
+
+        return {
+            "message": "Product updated successfully.",
+            "product": updated_product
+        }
     except bson_errors.InvalidId:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

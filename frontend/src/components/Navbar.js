@@ -49,7 +49,7 @@ function Navbar() {
   };
 
   return (
-    <AppBar position="static" color="default" elevation={1}>
+    <AppBar position="fixed" color="default" elevation={1} sx={{ width: '100%' }}>
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>

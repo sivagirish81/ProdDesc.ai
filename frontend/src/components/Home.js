@@ -60,7 +60,7 @@ function Home() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth={false} sx={{ py: 4 }}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" component="h1">
           Your Products
@@ -100,27 +100,78 @@ function Home() {
           </Button>
         </Paper>
       ) : (
-        <Grid container spacing={4}>
+        <Grid container spacing={3} sx={{ justifyContent: 'left' }}>
           {products.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                {product.image_url && (
+            <Grid item xs={12} sm={6} md={2.4} lg={2.4} key={product.id}>
+              {/* Each card takes up approximately one-fifth of the row */}
+              <Card
+                sx={{
+                  height: '400px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  maxWidth: '220px',
+                  boxShadow: 3,
+                  borderRadius: 2,
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                  },
+                }}
+              >
+                {product.image_url ? (
                   <CardMedia
                     component="img"
                     height="200"
                     image={product.image_url}
                     alt={product.name}
+                    sx={{
+                      objectFit: 'cover',
+                      borderBottom: '1px solid #e0e0e0',
+                    }}
                   />
+                ) : (
+                  <Box
+                    sx={{
+                      height: '200px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: '#f5f5f5',
+                      borderBottom: '1px solid #e0e0e0',
+                    }}
+                  >
+                    <Typography variant="body2" color="text.secondary">
+                      No Image Available
+                    </Typography>
+                  </Box>
                 )}
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography gutterBottom variant="h5" component="h3">
+                <CardContent
+                  sx={{
+                    flexGrow: 1,
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Typography gutterBottom variant="h6" component="h3">
                     {product.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" paragraph>
-                    {product.basic_description}
-                  </Typography>
+                  <Box
+                    sx={{
+                      height: '50px', // Fixed height for description box
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                       // Ensures text truncation with ellipsis
+                      mb: 1,
+                    }}
+                  >
+                    <Typography variant="body2" color="text.secondary">
+                      {product.basic_description || 'No description available.'}
+                    </Typography>
+                  </Box>
                   <Typography variant="body2" color="text.secondary">
-                    Category: {product.category}
+                    Category: {product.category || 'N/A'}
                   </Typography>
                   {product.subcategory && (
                     <Typography variant="body2" color="text.secondary">
@@ -128,16 +179,16 @@ function Home() {
                     </Typography>
                   )}
                 </CardContent>
-                <CardActions>
-                  <Button 
-                    size="small" 
+                <CardActions sx={{ justifyContent: 'center' }}>
+                  <Button
+                    size="small"
                     startIcon={<PreviewIcon />}
                     onClick={() => handlePreviewClick(product.id)}
                   >
                     Preview
                   </Button>
-                  <Button 
-                    size="small" 
+                  <Button
+                    size="small"
                     startIcon={<ImageIcon />}
                     onClick={() => handleImageClick(product.id)}
                   >
@@ -153,4 +204,4 @@ function Home() {
   );
 }
 
-export default Home; 
+export default Home;

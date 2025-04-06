@@ -66,7 +66,15 @@ function ContentPreview() {
 
   const handleSaveClick = async (field) => {
     try {
-      const updatedProduct = { ...product, [field]: editedContent };
+      let updatedFieldContent = editedContent;
+      if (["materials", "colors", "tags"].includes(field)) {
+        updatedFieldContent = editedContent
+          .split("\n") // Split by newline
+          .map((item) => item.trim()) // Trim whitespace
+          .filter((item) => item); // Remove empty items
+      }
+      
+      const updatedProduct = { ...product, [field]: updatedFieldContent };
       await updateProduct(productId, updatedProduct); // Save to database
       setProduct(updatedProduct); // Update local state
       setIsEditing(false);
@@ -164,41 +172,63 @@ function ContentPreview() {
         </Box>
 
         {activeTab === 0 && (
-          <Box>
-            <Typography variant="h6" gutterBottom>Product Description</Typography>
-            {isEditing ? (
-              <>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={4}
-                  value={editedContent}
-                  onChange={(e) => setEditedContent(e.target.value)}
-                />
-                <Button variant="contained" color="primary" onClick={() => handleSaveClick('description')} sx={{ mt: 2 }}>
-                  Save
+        <Box>
+          <Typography variant="h6" gutterBottom>Product Description</Typography>
+          {isEditing ? (
+            <>
+              <TextField
+                fullWidth
+                label="Basic Description"
+                value={product.basic_description}
+                onChange={(e) => setProduct({ ...product, basic_description: e.target.value })}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Detailed Description"
+                value={product.detailed_description}
+                onChange={(e) => setProduct({ ...product, detailed_description: e.target.value })}
+                sx={{ mb: 2 }}
+              />
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleSaveClick(['basic_description', 'detailed_description'])}
+                >
+                  Save All
                 </Button>
-              </>
-            ) : (
-              <>
-                <Typography paragraph>{product.description || product.basic_description}</Typography>
-                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
-                    Generate
-                  </Button>
-                  {isEditing && (
-                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
-                      Revert
-                    </Button>
-                  )}
-                  <Button variant="outlined" onClick={() => handleEditClick(product.description || product.basic_description)}>
-                    Edit
-                  </Button>
-                </Box>
-              </>
-            )}
-          </Box>
-        )}
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={handleRevertClick}
+                >
+                  Revert
+                </Button>
+              </Box>
+            </>
+          ) : (
+            <>
+              <Typography paragraph>
+                <strong>Basic Description:</strong> {product.basic_description || 'No basic description available.'}
+              </Typography>
+              <Typography paragraph>
+                <strong>Detailed Description:</strong> {product.detailed_description || 'No detailed description available.'}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => setIsEditing(true)}
+                >
+                  Edit
+                </Button>
+              </Box>
+            </>
+          )}
+        </Box>
+      )}
 
         {activeTab === 1 && (
           <Box>
@@ -230,7 +260,7 @@ function ContentPreview() {
                   <Typography color="text.secondary">No features available</Typography>
                 )}
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('features')} sx={{ ml: 2 }}>
                     Generate
                   </Button>
                   {isEditing && (
@@ -277,7 +307,7 @@ function ContentPreview() {
                   <Typography color="text.secondary">No materials available</Typography>
                 )}
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('materials')} sx={{ ml: 2 }}>
                     Generate
                   </Button>
                   {isEditing && (
@@ -324,7 +354,7 @@ function ContentPreview() {
                   <Typography color="text.secondary">No tags available</Typography>
                 )}
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('tags')} sx={{ ml: 2 }}>
                     Generate
                   </Button>
                   {isEditing && (
@@ -370,7 +400,7 @@ function ContentPreview() {
                   <Typography color="text.secondary">No image available</Typography>
                 )}
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('image_url')} sx={{ ml: 2 }}>
                     Generate
                   </Button>
                   {isEditing && (
@@ -420,7 +450,7 @@ function ContentPreview() {
                   <strong>Description:</strong> {product.seo_description || 'No SEO description available'}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('seo_data')} sx={{ ml: 2 }}>
                     Generate
                   </Button>
                   {isEditing && (
@@ -466,7 +496,7 @@ function ContentPreview() {
             <>
               <Typography>{product.marketing_copy.email || 'No email copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.email')} sx={{ ml: 2 }}>
                     Generate
                 </Button>
                 {isEditing && (
@@ -501,7 +531,7 @@ function ContentPreview() {
             <>
               <Typography>{product.marketing_copy.social_media.instagram || 'No Instagram copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.instagram')} sx={{ ml: 2 }}>
                     Generate
                 </Button>
                 {isEditing && (
@@ -536,7 +566,7 @@ function ContentPreview() {
             <>
               <Typography>{product.marketing_copy.social_media.facebook || 'No Facebook copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.facebook')} sx={{ ml: 2 }}>
                     Generate
                 </Button>
                 {isEditing && (
@@ -571,7 +601,7 @@ function ContentPreview() {
             <>
               <Typography>{product.marketing_copy.social_media.linkedin || 'No LinkedIn copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('description')} sx={{ ml: 2 }}>
+                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.linkedin')} sx={{ ml: 2 }}>
                     Generate
                   </Button>
                   {isEditing && (

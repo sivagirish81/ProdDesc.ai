@@ -1,7 +1,7 @@
 /* Main app styling */
 .app {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   padding: 20px;
   font-family: Arial, sans-serif;
 }
@@ -21,11 +21,11 @@
   gap: 30px;
 }
 
-@media (min-width: 992px) {
+/* @media (min-width: 992px) {
   .app-content {
     grid-template-columns: 400px 1fr;
   }
-}
+} */
 
 /* Configuration section styling */
 .configuration-section {

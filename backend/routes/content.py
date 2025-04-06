@@ -12,6 +12,16 @@ from bson import ObjectId, errors as bson_errors
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+def convert_objectid_to_str(data):
+    """Recursively convert ObjectId fields in a dictionary to strings."""
+    if isinstance(data, dict):
+        return {key: convert_objectid_to_str(value) for key, value in data.items()}
+    elif isinstance(data, list):
+        return [convert_objectid_to_str(item) for item in data]
+    elif isinstance(data, ObjectId):
+        return str(data)
+    return data
+
 @router.post("/products/{product_id}/generate-field")
 async def generate_field(
     product_id: str,
@@ -38,16 +48,19 @@ async def generate_field(
                 detail="Product not found"
             )
         
-        # Convert ObjectId fields to strings
-        if "_id" in product_data:
-            product_data["_id"] = str(product_data["_id"])
-        if "user_id" in product_data:
-            product_data["user_id"] = str(product_data["user_id"])
+        product_data = convert_objectid_to_str(product_data)
 
         product = Product(**product_data)
 
         # Generate content for the specified field
         generated_content = await openai_service.generate_missing_field(product, field)
+
+        if field == "features":
+            if isinstance(generated_content, str):
+                # Split the string into a list of strings
+                generated_content = [
+                    feature.strip() for feature in generated_content.split("\n") if feature.strip()
+                ]
 
         # Update the database with the generated content
         await db.products.update_one(
@@ -133,6 +146,45 @@ async def generate_content(
             detail="Error generating content"
         )
 
+@router.post("/products/{product_id}/generate-basic-data")
+async def generate_basic_data(
+    product_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Database = Depends(get_database),
+    openai_service: OpenAIService = Depends()
+):
+    try:
+        # Convert product_id to ObjectId
+        try:
+            product_id = ObjectId(product_id)
+        except bson_errors.InvalidId:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid product ID"
+            )
+
+        # Get product
+        product = await db.products.find_one({"_id": product_id, "user_id": current_user.id})
+        if not product:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Product not found"
+            )
+
+        # Generate basic data
+        basic_data = await openai_service.generate_basic_data(product, db, product_id)
+
+        return {
+            "message": "Basic data generated successfully.",
+            "generated_basic_data": basic_data
+        }
+    except Exception as e:
+        logger.error(f"Error generating basic data: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error generating basic data"
+        )
+    
 @router.post("/complete/{product_id}")
 async def complete_product(
     product_id: str,
