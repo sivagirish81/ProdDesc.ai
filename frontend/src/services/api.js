@@ -100,21 +100,11 @@ export const deleteProduct = async (id) => {
   }
 };
 
-export const generateSectionContent = async (id, section, formData) => {
+export const generateSectionContent = async (id, section, payload) => {
   try {
     const requestBody = {
       section: section,
-      form_data: {
-        name: formData.name,
-        price: formData.price,
-        brand: formData.brand,
-        category: formData.category,
-        basic_description: formData.basic_description,
-        features: formData.features || [],
-        materials: formData.materials || [],
-        colors: formData.colors || [],
-        tags: formData.tags || []
-      }
+      ...payload, // Pass the entire payload including image and description options
     };
 
     const response = await api.post(`/api/products/${id}/generate-basic-data`, requestBody);

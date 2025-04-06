@@ -39,6 +39,68 @@ function ProductForm() {
     tags: [],
   });
 
+  const [productName, setProductName] = useState('');
+  const [background, setBackground] = useState('white');
+  const [lighting, setLighting] = useState('studio');
+  const [angle, setAngle] = useState('front');
+  const [generatedImage, setGeneratedImage] = useState(null);
+  const [tone, setTone] = useState('professional');
+  const [length, setLength] = useState('medium');
+  const [audience, setAudience] = useState('general');
+
+  const backgroundOptions = [
+    { value: 'white', label: 'White' },
+    { value: 'studio', label: 'Studio' },
+    { value: 'gradient', label: 'Gradient' },
+    { value: 'contextual', label: 'Contextual' },
+    { value: 'outdoor', label: 'Outdoor' },
+    { value: 'minimalist', label: 'Minimalist' },
+  ];
+
+  const lightingOptions = [
+    { value: 'studio', label: 'Studio' },
+    { value: 'natural', label: 'Natural' },
+    { value: 'dramatic', label: 'Dramatic' },
+    { value: 'soft', label: 'Soft' },
+    { value: 'bright', label: 'Bright' },
+  ];
+
+  const angleOptions = [
+    { value: 'front', label: 'Front' },
+    { value: 'side', label: 'Side' },
+    { value: 'top-down', label: 'Top-Down' },
+    { value: 'three-quarter', label: 'Three-Quarter' },
+    { value: '45-degree', label: '45-Degree' },
+  ];
+
+  const toneOptions = [
+    { value: 'professional', label: 'Professional' },
+    { value: 'casual', label: 'Casual' },
+    { value: 'enthusiastic', label: 'Enthusiastic' },
+    { value: 'technical', label: 'Technical' },
+    { value: 'friendly', label: 'Friendly' },
+    { value: 'luxury', label: 'Luxury' }
+    ];
+    
+    // Available length options
+    const lengthOptions = [
+    { value: 'short', label: 'Short' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'long', label: 'Long' }
+    ];
+    
+    // Available audience options
+    const audienceOptions = [
+    { value: 'general', label: 'General' },
+    { value: 'technical', label: 'Technical' },
+    { value: 'beginners', label: 'Beginners' },
+    { value: 'experts', label: 'Experts' },
+    { value: 'business', label: 'Business' },
+    { value: 'youth', label: 'Youth' }
+    ];
+
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -60,6 +122,20 @@ function ProductForm() {
       setError('');
       setGenerationComplete(false);
 
+      const payload = {
+        ...formData,
+        descriptionOptions: {
+          tone,
+          length,
+          audience,
+        },
+        imageOptions: {
+          background,
+          lighting,
+          angle,
+        },
+      };
+
       // First create the product
       const createdProduct = await createProduct(formData);
 
@@ -67,7 +143,7 @@ function ProductForm() {
       setSelectedProduct(createdProduct);
 
       // Generate content with form data using the created product's ID
-      const content = await generateSectionContent(createdProduct.id, 'product', formData);
+      const content = await generateSectionContent(createdProduct.id, 'product', payload);
       setGeneratedContent(content);
       setGenerationComplete(true);
     } catch (error) {
@@ -212,16 +288,6 @@ function ProductForm() {
             required
           />
         </Grid>
-        {/* <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Features (comma-separated)"
-            value={formData.features.join(', ')}
-            onChange={(e) => handleArrayChange('features', e.target.value)}
-            margin="normal"
-            helperText="Enter features separated by commas"
-          />
-        </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <TextField
             fullWidth
@@ -251,7 +317,95 @@ function ProductForm() {
             margin="normal"
             helperText="Enter tags separated by commas"
           />
-        </Grid> */}
+        </Grid>
+
+        {/* New Section: Generate Product Description */}
+<Typography variant="h4" component="h1" gutterBottom>
+  Generate Product Description
+</Typography>
+
+<Grid container spacing={3}>
+  <Grid item xs={12} sm={6} md={4}>
+    <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+      <InputLabel>Tone</InputLabel>
+      <Select value={tone} onChange={(e) => setTone(e.target.value)}>
+        {toneOptions.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  </Grid>
+  <Grid item xs={12} sm={6} md={4}>
+    <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+      <InputLabel>Length</InputLabel>
+      <Select value={length} onChange={(e) => setLength(e.target.value)}>
+        {lengthOptions.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  </Grid>
+  <Grid item xs={12} sm={6} md={4}>
+    <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+      <InputLabel>Target Audience</InputLabel>
+      <Select value={audience} onChange={(e) => setAudience(e.target.value)}>
+        {audienceOptions.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  </Grid>
+</Grid>
+
+        {/* New fields for image options */}
+        <Typography variant="h4" component="h1" gutterBottom>
+          Generate Product Image
+        </Typography>
+
+        <Grid container spacing={3}>
+        <Grid item xs={12} sm={6} md={4}>
+        <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+            <InputLabel>Background</InputLabel>
+            <Select value={background} onChange={(e) => setBackground(e.target.value)}>
+              {backgroundOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+        <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+            <InputLabel>Lighting</InputLabel>
+            <Select value={lighting} onChange={(e) => setLighting(e.target.value)}>
+              {lightingOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+        <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+            <InputLabel>Angle</InputLabel>
+            <Select value={angle} onChange={(e) => setAngle(e.target.value)}>
+              {angleOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
       </Grid>
 
       <Divider sx={{ my: 4 }} />

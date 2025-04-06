@@ -149,6 +149,7 @@ async def generate_content(
 @router.post("/products/{product_id}/generate-basic-data")
 async def generate_basic_data(
     product_id: str,
+    payload: dict,
     current_user: User = Depends(get_current_user),
     db: Database = Depends(get_database),
     openai_service: OpenAIService = Depends()
@@ -171,8 +172,16 @@ async def generate_basic_data(
                 detail="Product not found"
             )
 
-        # Generate basic data
-        basic_data = await openai_service.generate_basic_data(product, db, product_id)
+        description_options = payload.get("descriptionOptions", {})
+        image_options = payload.get("imageOptions", {})
+
+        basic_data = await openai_service.generate_basic_data(product, db, product_id, description_options)
+
+        # Update the product in the database
+        await db.products.update_one(
+            {"_id": product_id},
+            {"$set": basic_data}
+        )
 
         return {
             "message": "Basic data generated successfully.",
@@ -184,7 +193,6 @@ async def generate_basic_data(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error generating basic data"
         )
-    
 @router.post("/complete/{product_id}")
 async def complete_product(
     product_id: str,

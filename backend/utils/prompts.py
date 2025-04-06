@@ -1,3 +1,24 @@
+def add_product_info_to_prompt(prompt, product):
+    if product.name:
+        prompt += f"\nProduct Name: {product.name}"
+    if product.brand:
+        prompt += f"\nBrand: {product.brand}"
+    if product.price:
+        prompt += f"\nPrice: ${product.price}"  
+    if product.category:    
+        prompt += f"\nCategory: {product.category}"
+    if product.basic_description:
+        prompt += f"\nBasic Description: {product.basic_description}"
+    if product.features:
+        prompt += f"\nFeatures: {', '.join(product.features)}"
+    if product.materials:
+        prompt += f"\nMaterials: {', '.join(product.materials)}"
+    if product.colors: 
+        prompt += f"\nColors: {', '.join(product.colors)}"
+    if product.tags:
+        prompt += f"\nTags: {', '.join(product.tags)}"  
+    return prompt
+
 def get_prompt_for_field(product, field):
     """Return the appropriate prompt for the given field."""
     base_info = f"""
@@ -89,17 +110,11 @@ def get_prompt_for_field(product, field):
 def get_prompt_for_basic_product(product):
     """Return a dictionary of prompts for the basic product data."""
     prompt = f"""
-        Use the following product information to generate content:        
-        Name: {product.name}
-        Brand: {product.brand}
-        Price: ${product.price}
-        Category: {product.category}
-        Subcategory: {product.subcategory}
-        Basic Description: {product.basic_description}
-        Features: {', '.join(product.features)}
-        Materials: {', '.join(product.materials)}
-        Colors: {', '.join(product.colors)}
-        Tags: {', '.join(product.tags)}
+        Use the following product information to generate content:
+        """
+    prompt = add_product_info_to_prompt(prompt, product)
+
+    prompt += f"""
         Generate:
         1. An SEO-optimized title (max 60 characters)
         2. An SEO-optimized meta description (max 160 characters)
@@ -108,9 +123,103 @@ def get_prompt_for_basic_product(product):
         5. Retain the colors if they exist, otherwise suggest five color options for this product. Separated by commas.
         6. A set of five tags that could be used to market this product. Separated by commas.
         7. A single line product description (max 200 characters)
-        8. A detailed product description (250-400 words) : This should be a comprehensive overview of the product, including its features, benefits, and use cases. It should be engaging and informative, written in a professional tone.
         Give a line space between each section to enable easy parsing.
         Make sure to: use all the existing data, and suggest new data where necessary.
         Always use the same format. (**1.**, **2.**, **3.**, etc.)
         """
+    return prompt
+
+def get_prompt_for_product_description(product, style=None):
+    # Implementation example - detailed prompt crafting
+    prompt = f"Create a compelling product description for the following e-commerce product:\n\n"
+        
+    # Add category information
+    if product.category:
+        prompt += f"CATEGORY: {product.category}\n"
+    
+    # Add product features with emphasis
+    if product.features and len(product.features) > 0:
+        prompt += "\nKEY FEATURES:\n"
+        for feature in product.features:
+            prompt += f"• {feature}\n"
+    
+    # Add materials information
+    if product.materials and len(product.materials) > 0:
+        prompt += "\nMATERIALS:\n"
+        for material in product.materials:
+            prompt += f"• {material}\n"
+    
+    # Add color options
+    if product.colors and len(product.colors) > 0:
+        prompt += f"\nAVAILABLE COLORS: {', '.join(product.colors)}\n"
+    
+    # Add existing basic description if available
+    if product.basic_description:
+        prompt += f"\nBASIC PRODUCT INFO: {product.basic_description}\n"
+    
+    # Add target keywords if available
+    if product.tags and len(product.tags) > 0:
+        prompt += f"\nTARGET KEYWORDS: {', '.join(product.tags)}\n"
+    
+    # Style and tone instructions
+    prompt += f"\n--- WRITING INSTRUCTIONS ---\n"
+    prompt += f"TONE: {style.get('tone', 'professional')}\n"
+    
+    # Length guidance based on style preference
+    if style.get('length') == 'short':
+        prompt += "LENGTH: Concise, approximately 75-100 words\n"
+    elif style.get('length') == 'long':
+        prompt += "LENGTH: Detailed, approximately 200-250 words\n"
+    else:  # medium is default
+        prompt += "LENGTH: Balanced, approximately 150-175 words\n"
+    
+    # Target audience customization
+    prompt += f"TARGET AUDIENCE: {style.get('audience', 'general consumers')}\n"
+    
+    # Structure guidance
+    prompt += "\nSTRUCTURE:\n"
+    prompt += "1. Start with an attention-grabbing opening that highlights a key benefit\n"
+    prompt += "2. Describe what the product is and its primary use cases\n"
+    prompt += "3. Highlight 3-4 key features and their benefits to the user\n"
+    prompt += "4. Include relevant details about quality, materials, or design\n"
+    prompt += "5. End with a concise call-to-action or value proposition\n"
+    
+    # Additional writing guidance
+    prompt += "\nADDITIONAL GUIDELINES:\n"
+    prompt += "• Use active voice and present tense\n"
+    prompt += "• Focus on benefits, not just features\n"
+    prompt += "• Create vivid, sensory language where appropriate\n"
+    prompt += "• Avoid clichés and generic marketing language\n"
+    
+    # Keyword integration
+    if style.get('keywords'):
+        prompt += f"\nPlease naturally incorporate these keywords: {', '.join(style['keywords'])}\n"
+    
+    # Final output formatting instructions
+    prompt += "\nProvide the product description as a cohesive, ready-to-use text without headings or bullet points unless they enhance readability. Don't include any disclaimers or explanations about the content."
+    return prompt
+
+def get_prompt_for_image_generation(product, style=None):
+    """Return a prompt for generating product images."""
+    prompt = f"""
+    Generate a high-quality image of the following product:
+    """
+    if product.name:
+        prompt += f"\nProduct Name: {product.name}"
+    if product.brand:
+        prompt += f"\nBrand: {product.brand}"
+    if product.price:
+        prompt += f"\nPrice: ${product.price}"  
+    if product.category:    
+        prompt += f"\nCategory: {product.category}"
+    if product.basic_description:
+        prompt += f"\nBasic Description: {product.basic_description}"
+    if product.features:
+        prompt += f"\nFeatures: {', '.join(product.features)}"
+    if product.materials:
+        prompt += f"\nMaterials: {', '.join(product.materials)}"
+    if product.colors: 
+        prompt += f"\nColors: {', '.join(product.colors)}"
+    if product.tags:
+        prompt += f"\nTags: {', '.join(product.tags)}"  
     return prompt
