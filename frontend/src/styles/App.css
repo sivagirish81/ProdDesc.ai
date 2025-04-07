@@ -247,6 +247,8 @@ textarea {
   margin-bottom: 10px;
   max-height: 300px;
   overflow-y: auto;
+  min-height: 100vh; /* Full viewport height */
+  width: 100%; /* Full viewport width */
 }
 
 .email-body p {
@@ -281,6 +283,23 @@ textarea {
 
 .copy-all:hover {
   background-color: #2980b9;
+}
+
+.paper-container {
+  width: 100%;
+  max-width: 900px; /* Limit the width for readability */
+  background-color: #ffffff; /* White background for contrast */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  padding: 24px; /* Add padding inside the paper */
+}
+
+/* Responsive grid styling */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
 }
 
 .no-content-message {
@@ -355,9 +374,14 @@ body {
 }
 
 .app-container {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Full viewport height */
+  width: 100%; /* Full viewport width */
+  background-color: #f5f5f5; /* Match the Box background */
+  padding: 20px; /* Add padding for spacing */
 }
 
 .content-container {
@@ -378,6 +402,7 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 24px;
   margin-top: 24px;
+  max-width: 1200px;
 }
 
 .image-grid {

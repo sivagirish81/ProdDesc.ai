@@ -7,7 +7,9 @@ class MarketingCopy(BaseModel):
     email: str = ""
     social_media: Dict[str, str] = {
         "instagram": "",
-        "facebook": ""
+        "facebook": "",
+        "twitter": "",
+        "linkedin": ""
     }
 
 class ProductBase(BaseModel):

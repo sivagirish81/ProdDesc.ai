@@ -22,7 +22,7 @@ import { createProduct, generateSectionContent } from '../services/api';
 
 function ProductForm() {
   const navigate = useNavigate();
-  const { setGeneratedContent, setSelectedProduct } = useProduct();
+  const { selectedProduct, setGeneratedContent, setSelectedProduct } = useProduct();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [generationComplete, setGenerationComplete] = useState(false);
@@ -47,6 +47,14 @@ function ProductForm() {
   const [tone, setTone] = useState('professional');
   const [length, setLength] = useState('medium');
   const [audience, setAudience] = useState('general');
+
+  const handlePreviewClick = () => {
+    if (selectedProduct && selectedProduct.id) {
+      navigate(`/preview/${selectedProduct.id}`);
+    } else {
+      console.error('No product selected or product ID is missing.');
+    }
+  };
 
   const backgroundOptions = [
     { value: 'white', label: 'White' },
@@ -153,260 +161,261 @@ function ProductForm() {
     }
   };
 
-  const handlePreview = () => {
-    navigate('/preview');
-  };
-
   return (
     <Box
-  sx={{
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh', // Full viewport height
-    width: '100vw', // Full viewport width
-    backgroundColor: '#f0f4f8', // Light background for aesthetics
-    padding: 2, // Add padding around the box
-  }}
->
-  <Container
-    maxWidth="lg"
-    sx={{
-      py: 4,
-      flexGrow: 1,
-      display: 'flex',
-
-      transform: 'translateX(-5%)', // Shift container slightly to the left
-    }}
-  >
-    <Paper
       sx={{
-        p: 4,
         display: 'flex',
         flexDirection: 'column',
-        width: '100%', // Occupy full width of the container
-        maxWidth: 900, // Optional max width for better readability
-        boxShadow: 6, // Enhance shadow for depth
-        borderRadius: 4, // Rounded corners for a modern look
-        backgroundColor: '#ffffff', // White background for contrast
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '80vh',
+        textAlign: 'center',
+
+        borderRadius: 2,
+        boxShadow: 3,
+
+        p: 4,
       }}
     >
-      <Typography variant="h4" component="h1" gutterBottom>
-        Generate Product Content
-      </Typography>
+      <Container
+        maxWidth="lg"
+        sx={{
+          py: 4,
+          flexGrow: 1,
+          display: 'flex',
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
+          transform: 'translateX(-5%)', // Shift container slightly to the left
+        }}
+      >
+        <Paper
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            fullWidth
-            label="Product Name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            fullWidth
-            label="Price"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            fullWidth
-            label="Brand"
-            name="brand"
-            value={formData.brand}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
-            <InputLabel>Category</InputLabel>
-            <Select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              label="Category"
-              required
-            >
-              <MenuItem value="electronics">Electronics</MenuItem>
-              <MenuItem value="clothing">Clothing</MenuItem>
-              <MenuItem value="home">Home & Kitchen</MenuItem>
-              <MenuItem value="beauty">Beauty & Personal Care</MenuItem>
-              <MenuItem value="sports">Sports & Outdoors</MenuItem>
-              <MenuItem value="toys">Toys & Games</MenuItem>
-              <MenuItem value="other">Other</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Features (comma-separated)"
-            value={formData.features.join(', ')}
-            onChange={(e) => handleArrayChange('features', e.target.value)}
-            margin="normal"
-            helperText="Enter features separated by commas"
-          />
-        </Grid>
-        {/* <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            fullWidth
-            label="Subcategory"
-            name="subcategory"
-            value={formData.subcategory}
-            onChange={handleChange}
-            margin="normal"
-          />
-        </Grid> */}
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Basic Description"
-            name="basic_description"
-            value={formData.basic_description}
-            onChange={handleChange}
-            margin="normal"
-            multiline
-            rows={3}
-            required
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            fullWidth
-            label="Materials (comma-separated)"
-            value={formData.materials.join(', ')}
-            onChange={(e) => handleArrayChange('materials', e.target.value)}
-            margin="normal"
-            helperText="Enter materials separated by commas"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            fullWidth
-            label="Colors (comma-separated)"
-            value={formData.colors.join(', ')}
-            onChange={(e) => handleArrayChange('colors', e.target.value)}
-            margin="normal"
-            helperText="Enter colors separated by commas"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Tags (comma-separated)"
-            value={formData.tags.join(', ')}
-            onChange={(e) => handleArrayChange('tags', e.target.value)}
-            margin="normal"
-            helperText="Enter tags separated by commas"
-          />
-        </Grid>
+            boxShadow: 6, // Enhance shadow for depth
+            borderRadius: 4, // Rounded corners for a modern look
 
-        {/* New Section: Generate Product Description */}
-<Typography variant="h4" component="h1" gutterBottom>
-  Generate Product Description
-</Typography>
+          }}
+        >
+          <Typography variant="h4" component="h1" gutterBottom>
+            Generate Product Content
+          </Typography>
+  
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+  
+          <Grid container spacing={3}>
+            {/* Product Details */}
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                label="Product Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                margin="normal"
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                label="Price"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                margin="normal"
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                label="Brand"
+                name="brand"
+                value={formData.brand}
+                onChange={handleChange}
+                margin="normal"
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  label="Category"
+                  required
+                >
+                  <MenuItem value="electronics">Electronics</MenuItem>
+                  <MenuItem value="clothing">Clothing</MenuItem>
+                  <MenuItem value="home">Home & Kitchen</MenuItem>
+                  <MenuItem value="beauty">Beauty & Personal Care</MenuItem>
+                  <MenuItem value="sports">Sports & Outdoors</MenuItem>
+                  <MenuItem value="toys">Toys & Games</MenuItem>
+                  <MenuItem value="other">Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+  
+            {/* Features, Materials, Colors, Tags */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Features (comma-separated)"
+                value={formData.features.join(', ')}
+                onChange={(e) => handleArrayChange('features', e.target.value)}
+                margin="normal"
+                helperText="Enter features separated by commas"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Basic Description"
+                name="basic_description"
+                value={formData.basic_description}
+                onChange={handleChange}
+                margin="normal"
+                multiline
+                rows={3}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                label="Materials (comma-separated)"
+                value={formData.materials.join(', ')}
+                onChange={(e) => handleArrayChange('materials', e.target.value)}
+                margin="normal"
+                helperText="Enter materials separated by commas"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                label="Colors (comma-separated)"
+                value={formData.colors.join(', ')}
+                onChange={(e) => handleArrayChange('colors', e.target.value)}
+                margin="normal"
+                helperText="Enter colors separated by commas"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Tags (comma-separated)"
+                value={formData.tags.join(', ')}
+                onChange={(e) => handleArrayChange('tags', e.target.value)}
+                margin="normal"
+                helperText="Enter tags separated by commas"
+              />
+            </Grid>
 
-<Grid container spacing={3}>
-  <Grid item xs={12} sm={6} md={4}>
-    <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
-      <InputLabel>Tone</InputLabel>
-      <Select value={tone} onChange={(e) => setTone(e.target.value)}>
-        {toneOptions.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  </Grid>
-  <Grid item xs={12} sm={6} md={4}>
-    <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
-      <InputLabel>Length</InputLabel>
-      <Select value={length} onChange={(e) => setLength(e.target.value)}>
-        {lengthOptions.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  </Grid>
-  <Grid item xs={12} sm={6} md={4}>
-    <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
-      <InputLabel>Target Audience</InputLabel>
-      <Select value={audience} onChange={(e) => setAudience(e.target.value)}>
-        {audienceOptions.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  </Grid>
-</Grid>
+            <Divider sx={{ my: 4 }} />
 
-        {/* New fields for image options */}
-        <Typography variant="h4" component="h1" gutterBottom>
-          Generate Product Image
-        </Typography>
-
-        <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={4}>
-        <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
-            <InputLabel>Background</InputLabel>
-            <Select value={background} onChange={(e) => setBackground(e.target.value)}>
-              {backgroundOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-        <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
-            <InputLabel>Lighting</InputLabel>
-            <Select value={lighting} onChange={(e) => setLighting(e.target.value)}>
-              {lightingOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-        <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
-            <InputLabel>Angle</InputLabel>
-            <Select value={angle} onChange={(e) => setAngle(e.target.value)}>
-              {angleOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-      </Grid>
-      </Grid>
+            {/* Generate Product Description Section */}
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+                  Generate Product Description
+                </Typography>
+              </Grid>
+  
+            {/* Description Options */}
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Tone</InputLabel>
+                  <Select value={tone} onChange={(e) => setTone(e.target.value)}>
+                    {toneOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Length</InputLabel>
+                  <Select value={length} onChange={(e) => setLength(e.target.value)}>
+                    {lengthOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Target Audience</InputLabel>
+                  <Select value={audience} onChange={(e) => setAudience(e.target.value)}>
+                    {audienceOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+            </Grid>
+  
+            {/* Generate Product Image */}
+            <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+              Generate Product Image
+            </Typography>
+  
+            {/* Image Options */}
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Background</InputLabel>
+                  <Select value={background} onChange={(e) => setBackground(e.target.value)}>
+                    {backgroundOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Lighting</InputLabel>
+                  <Select value={lighting} onChange={(e) => setLighting(e.target.value)}>
+                    {lightingOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Angle</InputLabel>
+                  <Select value={angle} onChange={(e) => setAngle(e.target.value)}>
+                    {angleOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+  
+          </Grid>
 
       <Divider sx={{ my: 4 }} />
 
@@ -425,7 +434,7 @@ function ProductForm() {
         <Button
           variant="outlined"
           color="secondary"
-          onClick={handlePreview}
+          onClick={handlePreviewClick}
           disabled={!generationComplete || loading}
           size="large"
           fullWidth

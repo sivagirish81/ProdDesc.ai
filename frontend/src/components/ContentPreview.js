@@ -17,6 +17,7 @@ import {
 import { fetchProduct, updateProduct } from '../services/api';
 
 function ContentPreview() {
+
   const { productId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -74,7 +75,31 @@ function ContentPreview() {
           .filter((item) => item); // Remove empty items
       }
       
-      const updatedProduct = { ...product, [field]: updatedFieldContent };
+      let updatedProduct = { ...product };
+      
+      if (field.split('.').length === 2) {
+        const email_copy = { ...product.marketing_copy.email, [field.split('.')[1]]: String(updatedFieldContent) };
+        updatedProduct = { ...product, marketing_copy: { ...product.marketing_copy, email: email_copy } };
+      }
+
+      if (field.split('.').length === 3) {
+        const social_media_copy = {
+            ...product.marketing_copy.social_media,
+            [field.split('.')[2]]: updatedFieldContent,
+        };
+
+        updatedProduct = {
+            ...product,
+            marketing_copy: {
+                ...product.marketing_copy,
+                social_media: social_media_copy,
+            },
+        };
+      }
+
+      if (field.split('.').length === 1) {
+        updatedProduct = { ...product, [field]: updatedFieldContent };
+      }
       await updateProduct(productId, updatedProduct); // Save to database
       setProduct(updatedProduct); // Update local state
       setIsEditing(false);
@@ -117,8 +142,42 @@ function ContentPreview() {
     setEditedContent(''); // Clear the edited content
   };
 
+  const marketingTabs = ['Email', 'Instagram', 'Facebook', 'LinkedIn', 'Twitter'];
 
-  const marketingTabs = ['Email', 'Instagram', 'Facebook', 'LinkedIn'];
+  if (!product) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '80vh',
+          textAlign: 'center',
+          backgroundColor: '#f9f9f9',
+          borderRadius: 2,
+          boxShadow: 3,
+          p: 4,
+        }}
+      >
+        <Typography variant="h5" color="text.secondary" gutterBottom>
+          Oops! No product data found.
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          It seems like no product data is available. Please generate content first or go back to the form to create a new product.
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          onClick={() => navigate('/')}
+          sx={{ textTransform: 'none', px: 4 }}
+        >
+          Return to Home Page
+        </Button>
+      </Box>
+    );
+  }
 
   if (loading) {
     return (
@@ -391,7 +450,7 @@ function ContentPreview() {
                   <Card>
                     <CardMedia
                       component="img"
-                      height="300"
+                      height="1024"
                       image={product.image_url}
                       alt={product.name}
                     />
@@ -494,7 +553,9 @@ function ContentPreview() {
             </>
           ) : (
             <>
-              <Typography>{product.marketing_copy.email || 'No email copy available'}</Typography>
+              <Typography
+               sx={{ whiteSpace: 'pre-line' }}
+              >{product.marketing_copy.email || 'No email copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.email')} sx={{ ml: 2 }}>
                     Generate
@@ -529,7 +590,9 @@ function ContentPreview() {
             </>
           ) : (
             <>
-              <Typography>{product.marketing_copy.social_media.instagram || 'No Instagram copy available'}</Typography>
+              <Typography
+               sx={{ whiteSpace: 'pre-line' }}
+              >{product.marketing_copy.social_media.instagram || 'No Instagram copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.instagram')} sx={{ ml: 2 }}>
                     Generate
@@ -564,7 +627,9 @@ function ContentPreview() {
             </>
           ) : (
             <>
-              <Typography>{product.marketing_copy.social_media.facebook || 'No Facebook copy available'}</Typography>
+              <Typography
+               sx={{ whiteSpace: 'pre-line' }}
+              >{product.marketing_copy.social_media.facebook || 'No Facebook copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.facebook')} sx={{ ml: 2 }}>
                     Generate
@@ -599,7 +664,9 @@ function ContentPreview() {
             </>
           ) : (
             <>
-              <Typography>{product.marketing_copy.social_media.linkedin || 'No LinkedIn copy available'}</Typography>
+              <Typography
+               sx={{ whiteSpace: 'pre-line' }}
+              >{product.marketing_copy.social_media.linkedin || 'No LinkedIn copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.linkedin')} sx={{ ml: 2 }}>
                     Generate
@@ -610,6 +677,43 @@ function ContentPreview() {
                     </Button>
                   )}
                 <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.social_media.linkedin)}>
+                  Edit
+                </Button>
+              </Box>
+            </>
+          )}
+        </>
+      )}
+      {activeSubTab === 4 && (
+        <>
+          {isEditing ? (
+            <>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+              />
+              <Button variant="contained" color="primary" onClick={() => handleSaveClick('marketing_copy.social_media.twitter')} sx={{ mt: 2 }}>
+                Save
+              </Button>
+            </>
+          ) : (
+            <>
+              <Typography
+               sx={{ whiteSpace: 'pre-line' }}
+              >{product.marketing_copy.social_media.twitter || 'No Tweet available'}</Typography>
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.twitter')} sx={{ ml: 2 }}>
+                    Generate
+                  </Button>
+                  {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.social_media.twitter)}>
                   Edit
                 </Button>
               </Box>
