@@ -40,9 +40,6 @@ function ProductForm() {
   });
 
   const [productName, setProductName] = useState('');
-  const [background, setBackground] = useState('white');
-  const [lighting, setLighting] = useState('studio');
-  const [angle, setAngle] = useState('front');
   const [generatedImage, setGeneratedImage] = useState(null);
   const [tone, setTone] = useState('professional');
   const [length, setLength] = useState('medium');
@@ -55,31 +52,6 @@ function ProductForm() {
       console.error('No product selected or product ID is missing.');
     }
   };
-
-  const backgroundOptions = [
-    { value: 'white', label: 'White' },
-    { value: 'studio', label: 'Studio' },
-    { value: 'gradient', label: 'Gradient' },
-    { value: 'contextual', label: 'Contextual' },
-    { value: 'outdoor', label: 'Outdoor' },
-    { value: 'minimalist', label: 'Minimalist' },
-  ];
-
-  const lightingOptions = [
-    { value: 'studio', label: 'Studio' },
-    { value: 'natural', label: 'Natural' },
-    { value: 'dramatic', label: 'Dramatic' },
-    { value: 'soft', label: 'Soft' },
-    { value: 'bright', label: 'Bright' },
-  ];
-
-  const angleOptions = [
-    { value: 'front', label: 'Front' },
-    { value: 'side', label: 'Side' },
-    { value: 'top-down', label: 'Top-Down' },
-    { value: 'three-quarter', label: 'Three-Quarter' },
-    { value: '45-degree', label: '45-Degree' },
-  ];
 
   const toneOptions = [
     { value: 'professional', label: 'Professional' },
@@ -136,12 +108,7 @@ function ProductForm() {
           tone,
           length,
           audience,
-        },
-        imageOptions: {
-          background,
-          lighting,
-          angle,
-        },
+        }
       };
 
       // First create the product
@@ -368,51 +335,6 @@ function ProductForm() {
                 </FormControl>
               </Grid>
             </Grid>
-            </Grid>
-  
-            {/* Generate Product Image */}
-            <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
-              Generate Product Image
-            </Typography>
-  
-            {/* Image Options */}
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6} md={4}>
-                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
-                  <InputLabel>Background</InputLabel>
-                  <Select value={background} onChange={(e) => setBackground(e.target.value)}>
-                    {backgroundOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6} md={4}>
-                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
-                  <InputLabel>Lighting</InputLabel>
-                  <Select value={lighting} onChange={(e) => setLighting(e.target.value)}>
-                    {lightingOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6} md={4}>
-                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
-                  <InputLabel>Angle</InputLabel>
-                  <Select value={angle} onChange={(e) => setAngle(e.target.value)}>
-                    {angleOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
             </Grid>
   
           </Grid>

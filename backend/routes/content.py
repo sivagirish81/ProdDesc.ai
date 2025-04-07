@@ -26,6 +26,7 @@ def convert_objectid_to_str(data):
 async def generate_field(
     product_id: str,
     field: str,
+    payload: dict,
     current_user: User = Depends(get_current_user),
     db: Database = Depends(get_database),
     openai_service: OpenAIService = Depends()
@@ -52,8 +53,9 @@ async def generate_field(
 
         product = Product(**product_data)
 
+        image_options = payload.get("imageOptions", {})
         # Generate content for the specified field
-        generated_content = await openai_service.generate_missing_field(product, field)
+        generated_content = await openai_service.generate_missing_field(product, field, image_options)
 
         if field == "features":
             if isinstance(generated_content, str):

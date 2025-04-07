@@ -11,6 +11,9 @@ import requests
 import uuid
 import asyncio
 from openai import OpenAI
+from openai import OpenAI
+
+client = OpenAI()
 
 client = OpenAI()
 
@@ -37,7 +40,8 @@ class OpenAIService:
             """Generate SEO and marketing content for a product."""
             basic_prompt = get_prompt_for_basic_product(product)
             description_prompt = get_prompt_for_product_description(product, style={"tone": description_options["tone"], "length": description_options["length"], "audience": description_options["audience"]})
-            image_generation_prompt = get_prompt_for_image_generation(product, style={"background": image_options["background"], "lighting": image_options["lighting"], "angle": image_options["angle"]})
+            if os.getenv("GEN_PROD_IMAGE_ALONG_WITH_DESC", "false").lower() == "true":
+                image_generation_prompt = get_prompt_for_image_generation(product, style={"background": image_options["background"], "lighting": image_options["lighting"], "angle": image_options["angle"]})
 
             logger.info(f"Detailed description prompt: {description_prompt}")
             general_task = self.client.chat.completions.create(
@@ -60,19 +64,18 @@ class OpenAIService:
                 max_tokens=1000
             )
 
-            logger.info(f"Image generation prompt: {image_generation_prompt}")
-            product_image_task = asyncio.to_thread(self.generate_image, image_generation_prompt)
+            if os.getenv("GEN_PROD_IMAGE_ALONG_WITH_DESC", "false").lower() == "true":
+                product_image_task = asyncio.to_thread(self.generate_image, image_generation_prompt)
+                general_response, description_response, product_image_response = await asyncio.gather(general_task, description_task, product_image_task)
+            else:
+                general_response, description_response = await asyncio.gather(general_task, description_task)
+                product_image_response = ""
 
-            general_response, description_response, product_image_response = await asyncio.gather(general_task, description_task, product_image_task)
-            # Parse the general response into structured content
-
-            logger.info(f"General response: {general_response}")
-            logger.info(f"Description response: {description_response}")
             general_content = general_response.choices[0].message.content
             general_content = re.sub(r"\*\*\d+\.\*\*", "", general_content).strip()
             sections = general_content.split("\n\n")
 
-            
+
             # Parse the product description response
             product_description = description_response.choices[0].message.content.strip()
 
@@ -88,9 +91,6 @@ class OpenAIService:
                 "detailed_description": product_description,
                 "image_url": product_image_response,
             }
-
-            logger.info(f"Generated content: {generated_data}")
-            logger.info(f"Product ID: {product_id}")
 
             # Update the product in the database
             await db.products.update_one(
@@ -110,9 +110,12 @@ class OpenAIService:
 
         return await self.complete_product(product)
 
-    async def generate_missing_field(self, product: Product, field: str) -> Any:
+    async def generate_missing_field(self, product: Product, field: str, imageOptions: dict) -> Any:
         """Generate content for a specific field of a product."""
         try:
+            if field == "image_url":
+                prompt = get_prompt_for_image_generation(product, imageOptions)
+                return await self.generate_image(prompt)
             # Get the appropriate prompt for the field
             logger.info(f"Generating content for field: {field}")
             prompt = get_prompt_for_field(product, field)
@@ -145,3 +148,39 @@ class OpenAIService:
             logger.error(f"Error generating basic data: {str(e)}")
             raise ValueError(f"Error generating basic data: {str(e)}")
 
+    async def generate_image(self, prompt: str) -> str:
+        """
+        Generate an image based on the given prompt, save it to the uploads/images folder,
+        and return the URL for accessing the image.
+        """
+        try:
+            # Call OpenAI's image generation API
+            response =  client.images.generate(model=self.image_model,
+            prompt=prompt,
+            n=1,  # Generate one image
+            size="1024x1024")
+
+            # Extract the image URL from the response
+            image_url = response.data[0].url
+
+            # Download the image
+            image_response = requests.get(image_url, stream=True)
+            if image_response.status_code != 200:
+                raise ValueError(f"Failed to download the generated image: {image_response.status_code}")
+
+            # Generate a unique filename for the image
+            filename = f"{uuid.uuid4().hex}.png"
+            file_path = os.path.join(self.upload_folder, filename)
+
+            # Save the image to the uploads/images folder
+            with open(file_path, "wb") as image_file:
+                for chunk in image_response.iter_content(1024):
+                    image_file.write(chunk)
+
+            # Return the URL for accessing the image
+            image_access_url = f"{self.base_url}/uploads/images/{filename}"
+            return image_access_url
+
+        except Exception as e:
+            logger.error(f"Error generating image: {str(e)}")
+            raise ValueError(f"Error generating image: {str(e)}")

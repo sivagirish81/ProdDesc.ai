@@ -12,7 +12,18 @@ import {
   Card,
   CardMedia,
   TextField,
-  Button
+  Button,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  CardContent,
+  CardActions,
+  Divider,
+  IconButton,
+  Snackbar,
+  Alert as MuiAlert,
 } from '@mui/material';
 import { fetchProduct, updateProduct } from '../services/api';
 
@@ -27,7 +38,35 @@ function ContentPreview() {
   const [activeSubTab, setActiveSubTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
+  const [background, setBackground] = useState('white');
+  const [lighting, setLighting] = useState('studio');
+  const [angle, setAngle] = useState('front');
 
+  const backgroundOptions = [
+    { value: 'white', label: 'White' },
+    { value: 'studio', label: 'Studio' },
+    { value: 'gradient', label: 'Gradient' },
+    { value: 'contextual', label: 'Contextual' },
+    { value: 'outdoor', label: 'Outdoor' },
+    { value: 'minimalist', label: 'Minimalist' },
+  ];
+
+  const lightingOptions = [
+    { value: 'studio', label: 'Studio' },
+    { value: 'natural', label: 'Natural' },
+    { value: 'dramatic', label: 'Dramatic' },
+    { value: 'soft', label: 'Soft' },
+    { value: 'bright', label: 'Bright' },
+  ];
+
+  const angleOptions = [
+    { value: 'front', label: 'Front' },
+    { value: 'side', label: 'Side' },
+    { value: 'top-down', label: 'Top-Down' },
+    { value: 'three-quarter', label: 'Three-Quarter' },
+    { value: '45-degree', label: '45-Degree' },
+  ];
+  
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -113,6 +152,15 @@ function ContentPreview() {
     try {
       setLoading(true);
       setError('');
+
+      const payload = {
+        imageOptions: {
+          background,
+          lighting,
+          angle,
+        },
+      };
+
       const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:8000/api/products/${productId}/generate-field?field=${field}`, {
         method: 'POST',
@@ -120,6 +168,7 @@ function ContentPreview() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
+        body: JSON.stringify(payload),
       });
   
       if (!response.ok) {
@@ -459,6 +508,51 @@ function ContentPreview() {
                   <Typography color="text.secondary">No image available</Typography>
                 )}
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                  {/* Generate Product Image */}
+            <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+              Generate Product Image
+            </Typography>
+  
+            {/* Image Options */}
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Background</InputLabel>
+                  <Select value={background} onChange={(e) => setBackground(e.target.value)}>
+                    {backgroundOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Lighting</InputLabel>
+                  <Select value={lighting} onChange={(e) => setLighting(e.target.value)}>
+                    {lightingOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Angle</InputLabel>
+                  <Select value={angle} onChange={(e) => setAngle(e.target.value)}>
+                    {angleOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+
                   <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('image_url')} sx={{ ml: 2 }}>
                     Generate
                   </Button>
