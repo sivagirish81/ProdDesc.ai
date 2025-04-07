@@ -144,27 +144,7 @@ function ProductForm() {
         p: 4,
       }}
     >
-      <Container
-        maxWidth="lg"
-        sx={{
-          py: 4,
-          flexGrow: 1,
-          display: 'flex',
-
-          transform: 'translateX(-5%)', // Shift container slightly to the left
-        }}
-      >
-        <Paper
-          sx={{
-            p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-
-            boxShadow: 6, // Enhance shadow for depth
-            borderRadius: 4, // Rounded corners for a modern look
-
-          }}
-        >
+      
           <Typography variant="h4" component="h1" gutterBottom>
             Generate Product Content
           </Typography>
@@ -341,31 +321,30 @@ function ProductForm() {
 
       <Divider sx={{ my: 4 }} />
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleGenerate}
-          disabled={loading}
-          size="large"
-          fullWidth
-        >
-          {loading ? <CircularProgress size={24} /> : 'Generate Content'}
-        </Button>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3, gap: 2 }}>
+  <Button
+    variant="contained"
+    color="primary"
+    onClick={handleGenerate}
+    disabled={loading}
+    size="large"
+    fullWidth
+  >
+    {loading ? <CircularProgress size={24} /> : 'Generate Content'}
+  </Button>
 
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={handlePreviewClick}
-          disabled={!generationComplete || loading}
-          size="large"
-          fullWidth
-        >
-          Preview Content
-        </Button>
-      </Box>
-    </Paper>
-  </Container>
+  <Button
+    variant="outlined"
+    color="secondary"
+    onClick={handlePreviewClick}
+    disabled={!generationComplete || loading}
+    size="large"
+    fullWidth
+  >
+    Preview Content
+  </Button>
+</Box>
+    
 </Box>
 
 

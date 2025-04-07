@@ -253,14 +253,7 @@ function ContentPreview() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{
-      display: 'flex',
-      justifyContent: 'center',
-      minHeight: '100vh', // Full viewport height
-      width: '80vw', // Full viewport width
-      padding: 2,
-      transform: 'translateX(-2.0%)'
-    }}>
+    
       <Paper sx={{ p: 4, flexGrow: 1 }}>
         <Typography variant="h4" gutterBottom>
           {product.name}
@@ -819,7 +812,7 @@ function ContentPreview() {
       </Box>
     )}
 </Paper>
-</Container>
+
 );
 }
 
