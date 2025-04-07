@@ -2,7 +2,7 @@ from openai import AsyncOpenAI
 from models.product import Product
 import os
 from typing import Dict, Any
-from utils.prompts import get_prompt_for_field, get_prompt_for_basic_product, get_prompt_for_product_description
+from utils.prompts import get_prompt_for_field, get_prompt_for_basic_product, get_prompt_for_product_description, get_prompt_for_image_generation
 import logging
 from pymongo.database import Database
 from utils.converter import convert_objectid_to_str
@@ -10,6 +10,7 @@ import re
 import requests
 import uuid
 import asyncio
+import openai
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ class OpenAIService:
         self.client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.model = "gpt-4o-mini-2024-07-18"
         self.image_model = "dall-e-3"
+        self.upload_folder = os.path.join(os.getcwd(), "uploads", "images")
 
     def _parse_list(self, section: str) -> list:
         """Parse a section into a clean list of items."""
@@ -27,11 +29,12 @@ class OpenAIService:
         section = re.sub(r"\*\*.*?\*\*", "", section).strip()
         return [item.strip() for item in section.split(",") if item.strip()]
     
-    async def generate_content(self, product: Product, db, product_id: str, description_options: dict) -> Dict[str, Any]:
+    async def generate_content(self, product: Product, db, product_id: str, description_options: dict, image_options: dict) -> Dict[str, Any]:
         try:
             """Generate SEO and marketing content for a product."""
             basic_prompt = get_prompt_for_basic_product(product)
             description_prompt = get_prompt_for_product_description(product, style={"tone": description_options["tone"], "length": description_options["length"], "audience": description_options["audience"]})
+            image_generation_prompt = get_prompt_for_image_generation(product, style={"background": image_options["background"], "lighting": image_options["lighting"], "angle": image_options["angle"]})
 
             logger.info(f"Detailed description prompt: {description_prompt}")
             general_task = self.client.chat.completions.create(
@@ -54,8 +57,14 @@ class OpenAIService:
                 max_tokens=1000
             )
 
-            general_response, description_response = await asyncio.gather(general_task, description_task)
+            logger.info(f"Image generation prompt: {image_generation_prompt}")
+            product_image_task = asyncio.to_thread(self.generate_image, image_generation_prompt)
+
+            general_response, description_response, product_image_response = await asyncio.gather(general_task, description_task, product_image_task)
             # Parse the general response into structured content
+
+            generated_image_url = product_image_response["data"][0]["url"]
+            stored_image_url = await self.get_image_data(generated_image_url)
             
             logger.info(f"General response: {general_response}")
             logger.info(f"Description response: {description_response}")
@@ -75,7 +84,8 @@ class OpenAIService:
                 "colors": self._parse_list(sections[4]) if len(sections) > 4 else [],
                 "tags": self._parse_list(sections[5]) if len(sections) > 5 else [],
                 "basic_description": sections[6].strip() if len(sections) > 6 else "",
-                "detailed_description": product_description,  # Add the generated product description
+                "detailed_description": product_description,
+                "image_url": stored_image_url,
             }
 
             logger.info(f"Generated content: {generated_data}")
@@ -123,25 +133,26 @@ class OpenAIService:
         except Exception as e:
             raise ValueError(f"Error generating content for field '{field}': {str(e)}")
         
-    async def generate_basic_data(self, product: dict, db : Database, product_id : str, description_options: dict) -> Dict[str, Any]:
+    async def generate_basic_data(self, product: dict, db : Database, product_id : str, description_options: dict, image_options: dict) -> Dict[str, Any]:
         """Generate basic data for a product and generate product image."""
         try:
             # Convert the product dictionary to a Product object
             product = convert_objectid_to_str(product)
             product_obj = Product(**product)
-            return await self.generate_content(product_obj, db, product_id, description_options)
+            return await self.generate_content(product_obj, db, product_id, description_options, image_options)
         except Exception as e:
             logger.error(f"Error generating basic data: {str(e)}")
             raise ValueError(f"Error generating basic data: {str(e)}")
         
-    async def generate_image(self, prompt: str) -> str:
+    def generate_image(self, prompt: str) -> str:
         """
         Generate an image based on the given prompt, save it to the uploads/images folder,
         and return the URL for accessing the image.
         """
         try:
             # Call OpenAI's image generation API
-            response = await self.client.images.create(
+            response =  openai.Image.create(
+                model=self.image_model,
                 prompt=prompt,
                 n=1,  # Generate one image
                 size="512x512"  # Image size

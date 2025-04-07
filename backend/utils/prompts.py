@@ -222,4 +222,14 @@ def get_prompt_for_image_generation(product, style=None):
         prompt += f"\nColors: {', '.join(product.colors)}"
     if product.tags:
         prompt += f"\nTags: {', '.join(product.tags)}"  
+
+    prompt += f"""
+    \nUse an aesthetic Background: {style.get('background', 'white')}
+    """
+    prompt += f"""
+    \nEnsure {style.get('lighting', 'Natural')} lighting
+    """
+    prompt += f"""
+    Show the product in {style.get('angle', 'front')} angle
+    """
     return prompt

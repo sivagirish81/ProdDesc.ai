@@ -175,7 +175,7 @@ async def generate_basic_data(
         description_options = payload.get("descriptionOptions", {})
         image_options = payload.get("imageOptions", {})
 
-        basic_data = await openai_service.generate_basic_data(product, db, product_id, description_options)
+        basic_data = await openai_service.generate_basic_data(product, db, product_id, description_options, image_options)
 
         # Update the product in the database
         await db.products.update_one(
