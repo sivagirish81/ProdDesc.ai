@@ -21,17 +21,7 @@ def add_product_info_to_prompt(prompt, product):
 
 def get_prompt_for_field(product, field):
     """Return the appropriate prompt for the given field."""
-    base_info = f"""
-    Product Name: {product.name}
-    Brand: {product.brand or 'N/A'}
-    Price: ${product.price or 'N/A'}
-    Category: {product.category or 'N/A'}
-    Basic Description: {product.basic_description or 'N/A'}
-    Features: {', '.join(product.features) if product.features else 'N/A'}
-    Materials: {', '.join(product.materials) if product.materials else 'N/A'}
-    Colors: {', '.join(product.colors) if product.colors else 'N/A'}
-    Tags: {', '.join(product.tags) if product.tags else 'N/A'}
-    """
+    base_info = add_product_info_to_prompt("", product)
 
     prompts = {
         "seo_title": f"""
@@ -87,19 +77,50 @@ def get_prompt_for_field(product, field):
         Using the following product information:
         {base_info}
         Generate an Instagram post caption for this product. The caption should be engaging, include relevant hashtags, and encourage users to interact with the post.
+        - Create an eye-catching caption that works with a product image
+        - Include 2-3 relevant emojis spaced throughout the text
+        - Keep the main message under 125 words
+        - End with a clear call-to-action
+        - Include 3-5 relevant hashtags at the end (format with # symbol)
+        - Tone should be visual, aspirational, and lifestyle-focused
         """,
 
         "marketing_copy.social_media.facebook": f"""
         Using the following product information:
         {base_info}
+        Generate a Facebook post for this product. 
+        - Write a detailed post (75-100 words)
+        - Include one question to encourage engagement
+        - Create a clear value proposition
+        - End with a specific call-to-action
+        - Tone should be conversational and informative
+        """,
+
+        "marketing_copy.social_media.linkedin": f"""
+        Using the following product information:
+        {base_info}
         Generate a Facebook post for this product. The post should highlight the product's key benefits and include a call-to-action to purchase or learn more.
+        """,
+
+        "marketing_copy.social_media.twitter": f"""
+        Using the following product information:
+        {base_info}
+        - Create a concise, attention-grabbing tweet (max 280 characters)
+        - Make it shareable and engaging
+        - Include 1-2 relevant hashtags integrated into the text
+        - Include a call-to-action when possible
+        - Make it conversational, clever or timely when appropriate
         """,
 
         "description": f"""
         Using the following product information:
         {base_info}
         Generate a concise and engaging product description. The description should highlight the product's key features and benefits.
-        """
+        """,
+
+        "image_url": f""" 
+        Using the following product information:
+        {base_info}"""
     }
 
     if field not in prompts:
@@ -222,4 +243,14 @@ def get_prompt_for_image_generation(product, style=None):
         prompt += f"\nColors: {', '.join(product.colors)}"
     if product.tags:
         prompt += f"\nTags: {', '.join(product.tags)}"  
+
+    prompt += f"""
+    \nUse an aesthetic Background: {style.get('background', 'white')}
+    """
+    prompt += f"""
+    \nEnsure {style.get('lighting', 'Natural')} lighting
+    """
+    prompt += f"""
+    Show the product in {style.get('angle', 'front')} angle
+    """
     return prompt

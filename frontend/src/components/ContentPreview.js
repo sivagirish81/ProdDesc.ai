@@ -12,11 +12,23 @@ import {
   Card,
   CardMedia,
   TextField,
-  Button
+  Button,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  CardContent,
+  CardActions,
+  Divider,
+  IconButton,
+  Snackbar,
+  Alert as MuiAlert,
 } from '@mui/material';
 import { fetchProduct, updateProduct } from '../services/api';
 
 function ContentPreview() {
+
   const { productId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -26,7 +38,35 @@ function ContentPreview() {
   const [activeSubTab, setActiveSubTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
+  const [background, setBackground] = useState('white');
+  const [lighting, setLighting] = useState('studio');
+  const [angle, setAngle] = useState('front');
 
+  const backgroundOptions = [
+    { value: 'white', label: 'White' },
+    { value: 'studio', label: 'Studio' },
+    { value: 'gradient', label: 'Gradient' },
+    { value: 'contextual', label: 'Contextual' },
+    { value: 'outdoor', label: 'Outdoor' },
+    { value: 'minimalist', label: 'Minimalist' },
+  ];
+
+  const lightingOptions = [
+    { value: 'studio', label: 'Studio' },
+    { value: 'natural', label: 'Natural' },
+    { value: 'dramatic', label: 'Dramatic' },
+    { value: 'soft', label: 'Soft' },
+    { value: 'bright', label: 'Bright' },
+  ];
+
+  const angleOptions = [
+    { value: 'front', label: 'Front' },
+    { value: 'side', label: 'Side' },
+    { value: 'top-down', label: 'Top-Down' },
+    { value: 'three-quarter', label: 'Three-Quarter' },
+    { value: '45-degree', label: '45-Degree' },
+  ];
+  
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -74,7 +114,31 @@ function ContentPreview() {
           .filter((item) => item); // Remove empty items
       }
       
-      const updatedProduct = { ...product, [field]: updatedFieldContent };
+      let updatedProduct = { ...product };
+      
+      if (field.split('.').length === 2) {
+        const email_copy = { ...product.marketing_copy.email, [field.split('.')[1]]: String(updatedFieldContent) };
+        updatedProduct = { ...product, marketing_copy: { ...product.marketing_copy, email: email_copy } };
+      }
+
+      if (field.split('.').length === 3) {
+        const social_media_copy = {
+            ...product.marketing_copy.social_media,
+            [field.split('.')[2]]: updatedFieldContent,
+        };
+
+        updatedProduct = {
+            ...product,
+            marketing_copy: {
+                ...product.marketing_copy,
+                social_media: social_media_copy,
+            },
+        };
+      }
+
+      if (field.split('.').length === 1) {
+        updatedProduct = { ...product, [field]: updatedFieldContent };
+      }
       await updateProduct(productId, updatedProduct); // Save to database
       setProduct(updatedProduct); // Update local state
       setIsEditing(false);
@@ -88,6 +152,15 @@ function ContentPreview() {
     try {
       setLoading(true);
       setError('');
+
+      const payload = {
+        imageOptions: {
+          background,
+          lighting,
+          angle,
+        },
+      };
+
       const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:8000/api/products/${productId}/generate-field?field=${field}`, {
         method: 'POST',
@@ -95,6 +168,7 @@ function ContentPreview() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
+        body: JSON.stringify(payload),
       });
   
       if (!response.ok) {
@@ -117,8 +191,42 @@ function ContentPreview() {
     setEditedContent(''); // Clear the edited content
   };
 
+  const marketingTabs = ['Email', 'Instagram', 'Facebook', 'LinkedIn', 'Twitter'];
 
-  const marketingTabs = ['Email', 'Instagram', 'Facebook', 'LinkedIn'];
+  if (!product) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '80vh',
+          textAlign: 'center',
+          backgroundColor: '#f9f9f9',
+          borderRadius: 2,
+          boxShadow: 3,
+          p: 4,
+        }}
+      >
+        <Typography variant="h5" color="text.secondary" gutterBottom>
+          Oops! No product data found.
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          It seems like no product data is available. Please generate content first or go back to the form to create a new product.
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          onClick={() => navigate('/')}
+          sx={{ textTransform: 'none', px: 4 }}
+        >
+          Return to Home Page
+        </Button>
+      </Box>
+    );
+  }
 
   if (loading) {
     return (
@@ -145,14 +253,7 @@ function ContentPreview() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{
-      display: 'flex',
-      justifyContent: 'center',
-      minHeight: '100vh', // Full viewport height
-      width: '80vw', // Full viewport width
-      padding: 2,
-      transform: 'translateX(-2.0%)'
-    }}>
+    
       <Paper sx={{ p: 4, flexGrow: 1 }}>
         <Typography variant="h4" gutterBottom>
           {product.name}
@@ -391,7 +492,7 @@ function ContentPreview() {
                   <Card>
                     <CardMedia
                       component="img"
-                      height="300"
+                      height="1024"
                       image={product.image_url}
                       alt={product.name}
                     />
@@ -400,6 +501,51 @@ function ContentPreview() {
                   <Typography color="text.secondary">No image available</Typography>
                 )}
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                  {/* Generate Product Image */}
+            <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+              Generate Product Image
+            </Typography>
+  
+            {/* Image Options */}
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Background</InputLabel>
+                  <Select value={background} onChange={(e) => setBackground(e.target.value)}>
+                    {backgroundOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Lighting</InputLabel>
+                  <Select value={lighting} onChange={(e) => setLighting(e.target.value)}>
+                    {lightingOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 200 }}>
+                  <InputLabel>Angle</InputLabel>
+                  <Select value={angle} onChange={(e) => setAngle(e.target.value)}>
+                    {angleOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+
                   <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('image_url')} sx={{ ml: 2 }}>
                     Generate
                   </Button>
@@ -494,7 +640,9 @@ function ContentPreview() {
             </>
           ) : (
             <>
-              <Typography>{product.marketing_copy.email || 'No email copy available'}</Typography>
+              <Typography
+               sx={{ whiteSpace: 'pre-line' }}
+              >{product.marketing_copy.email || 'No email copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.email')} sx={{ ml: 2 }}>
                     Generate
@@ -529,7 +677,9 @@ function ContentPreview() {
             </>
           ) : (
             <>
-              <Typography>{product.marketing_copy.social_media.instagram || 'No Instagram copy available'}</Typography>
+              <Typography
+               sx={{ whiteSpace: 'pre-line' }}
+              >{product.marketing_copy.social_media.instagram || 'No Instagram copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.instagram')} sx={{ ml: 2 }}>
                     Generate
@@ -564,7 +714,9 @@ function ContentPreview() {
             </>
           ) : (
             <>
-              <Typography>{product.marketing_copy.social_media.facebook || 'No Facebook copy available'}</Typography>
+              <Typography
+               sx={{ whiteSpace: 'pre-line' }}
+              >{product.marketing_copy.social_media.facebook || 'No Facebook copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.facebook')} sx={{ ml: 2 }}>
                     Generate
@@ -599,7 +751,9 @@ function ContentPreview() {
             </>
           ) : (
             <>
-              <Typography>{product.marketing_copy.social_media.linkedin || 'No LinkedIn copy available'}</Typography>
+              <Typography
+               sx={{ whiteSpace: 'pre-line' }}
+              >{product.marketing_copy.social_media.linkedin || 'No LinkedIn copy available'}</Typography>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.linkedin')} sx={{ ml: 2 }}>
                     Generate
@@ -617,11 +771,48 @@ function ContentPreview() {
           )}
         </>
       )}
+      {activeSubTab === 4 && (
+        <>
+          {isEditing ? (
+            <>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+              />
+              <Button variant="contained" color="primary" onClick={() => handleSaveClick('marketing_copy.social_media.twitter')} sx={{ mt: 2 }}>
+                Save
+              </Button>
+            </>
+          ) : (
+            <>
+              <Typography
+               sx={{ whiteSpace: 'pre-line' }}
+              >{product.marketing_copy.social_media.twitter || 'No Tweet available'}</Typography>
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.twitter')} sx={{ ml: 2 }}>
+                    Generate
+                  </Button>
+                  {isEditing && (
+                    <Button variant="outlined" color="error" onClick={handleRevertClick}>
+                      Revert
+                    </Button>
+                  )}
+                <Button variant="outlined" onClick={() => handleEditClick(product.marketing_copy.social_media.twitter)}>
+                  Edit
+                </Button>
+              </Box>
+            </>
+          )}
+        </>
+      )}
         </Box>
       </Box>
     )}
 </Paper>
-</Container>
+
 );
 }
 
