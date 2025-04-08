@@ -16,7 +16,6 @@ import {
   Home as HomeIcon,
   AutoAwesome as GenerateIcon,
   Preview as PreviewIcon,
-  Image as ImageIcon,
   AccountCircle,
   Logout,
 } from '@mui/icons-material';
@@ -84,16 +83,6 @@ function Navbar() {
                   }}
                 >
                   Preview
-                </Button>
-                <Button
-                  color="inherit"
-                  startIcon={<ImageIcon />}
-                  onClick={() => navigate('/images')}
-                  sx={{
-                    backgroundColor: isActive('/images') ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
-                  }}
-                >
-                  Images
                 </Button>
               </>
             )}

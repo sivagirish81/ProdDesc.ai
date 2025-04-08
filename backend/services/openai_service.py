@@ -5,7 +5,7 @@ from typing import Dict, Any
 from utils.prompts import get_prompt_for_field, get_prompt_for_basic_product, get_prompt_for_product_description, get_prompt_for_image_generation
 import logging
 from pymongo.database import Database
-from utils.converter import convert_objectid_to_str
+from utils.converter import convert_objectid_to_str, remove_invalid_unicode
 import re
 import requests
 import uuid
@@ -133,6 +133,10 @@ class OpenAIService:
 
             # Extract and return the generated content
             content = response.choices[0].message.content.strip()
+            if field == "marketing_copy.email":
+                if isinstance(content, str):
+                    generate_content = remove_invalid_unicode(content)
+
             return content
         except Exception as e:
             raise ValueError(f"Error generating content for field '{field}': {str(e)}")

@@ -7,7 +7,6 @@ import Navbar from './components/Navbar';
 import Home from './components/Home';
 import ProductForm from './components/ProductForm';
 import ContentPreview from './components/ContentPreview';
-import ImageGeneration from './components/ImageGeneration';
 import Login from './components/Login';
 import Register from './components/Register';
 import './styles/App.css';
@@ -123,14 +122,6 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <ContentPreview />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/images"
-                    element={
-                      <ProtectedRoute>
-                        <ImageGeneration />
                       </ProtectedRoute>
                     }
                   />

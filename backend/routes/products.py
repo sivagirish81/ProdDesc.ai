@@ -10,7 +10,8 @@ import logging
 from datetime import datetime
 from bson import ObjectId, errors as bson_errors
 from motor.motor_asyncio import AsyncIOMotorCursor, AsyncIOMotorDatabase
-from utils.converter import convert_objectid_to_str
+from utils.converter import convert_objectid_to_str, safe_text , sanitize_unicode
+
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -116,6 +117,8 @@ async def update_product(
 ):
     """Update a product"""
     try:
+        
+
         # Check if product exists and belongs to user
         existing_product = await db.products.find_one({
             "_id": ObjectId(product_id),

@@ -104,6 +104,10 @@ function ContentPreview() {
     setEditedContent(currentContent || '');
   };
 
+  const sanitizeInput = (input) => {
+    return input.replace(/[\uD800-\uDFFF]/g, ''); // Remove surrogate pairs
+  };
+
   const handleSaveClick = async (field) => {
     try {
       let updatedFieldContent = editedContent;
@@ -117,8 +121,16 @@ function ContentPreview() {
       let updatedProduct = { ...product };
       
       if (field.split('.').length === 2) {
-        const email_copy = { ...product.marketing_copy.email, [field.split('.')[1]]: String(updatedFieldContent) };
-        updatedProduct = { ...product, marketing_copy: { ...product.marketing_copy, email: email_copy } };
+        const email_copy = { 
+          ...product.marketing_copy.email, 
+          [field.split('.')[1]]: updatedFieldContent 
+        };
+        updatedProduct = { 
+          ...product, 
+          marketing_copy: { 
+            ...product.marketing_copy, email_copy // Corrected here to use 'email' instead of 'email_copy'
+          } 
+        };
       }
 
       if (field.split('.').length === 3) {

@@ -19,6 +19,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 class Token(BaseModel):
     access_token: str
@@ -41,7 +42,8 @@ class LoginRequest(BaseModel):
 @router.post("/register", response_model=UserResponse)
 async def register(user: UserCreate, db: Database = Depends(get_database)):
     # Check if user already exists
-    if db.users.find_one({"email": user.email}):
+    existing_user = await db.users.find_one({"email": user.email})
+    if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
@@ -60,7 +62,7 @@ async def register(user: UserCreate, db: Database = Depends(get_database)):
         "products": []
     }
     
-    result = db.users.insert_one(user_dict)
+    result = await db.users.insert_one(user_dict)
     user_dict["id"] = result.inserted_id
     
     # Create response without hashed_password
@@ -76,6 +78,7 @@ async def login_json(
     try:
         # Find user by email
         user_data = await db.users.find_one({"email": login_data.email})
+        logger.info(f"User data: {user_data}")
         if not user_data:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -98,7 +101,6 @@ async def login_json(
             "token_type": "bearer"
         }
     except Exception as e:
-        logger.error(f"Error during login: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error during login"

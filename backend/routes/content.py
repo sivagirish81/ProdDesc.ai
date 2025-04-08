@@ -63,7 +63,7 @@ async def generate_field(
                 generated_content = [
                     feature.strip() for feature in generated_content.split("\n") if feature.strip()
                 ]
-
+        
         # Update the database with the generated content
         await db.products.update_one(
             {"_id": product_id},
