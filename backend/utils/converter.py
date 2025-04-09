@@ -1,5 +1,25 @@
+import logging
 from bson import ObjectId
 
+logger = logging.getLogger(__name__)
+
+def deep_safe_stringify(data):
+    if isinstance(data, dict):
+        return {k: deep_safe_stringify(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [deep_safe_stringify(item) for item in data]
+    elif isinstance(data, ObjectId):
+        try:
+            return str(data)
+        except Exception:
+            return None
+    elif isinstance(data, bytes):
+        return data.decode("utf-8", errors="replace")
+    elif isinstance(data, str):
+        return data.encode("utf-8", errors="surrogatepass").decode("utf-8", errors="surrogatepass")
+    else:
+        return data
+    
 def convert_objectid_to_str(data):
     """Recursively convert ObjectId fields in a dictionary to strings."""
     if isinstance(data, dict):
@@ -7,7 +27,11 @@ def convert_objectid_to_str(data):
     elif isinstance(data, list):
         return [convert_objectid_to_str(item) for item in data]
     elif isinstance(data, ObjectId):
-        return str(data)
+        try:
+            logger.info(f"Converting ObjectId to string: {data}")
+            return str(data)
+        except Exception as e:
+            return deep_safe_stringify(data)
     return data
 
 def safe_text(text: str) -> str:

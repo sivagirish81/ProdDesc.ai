@@ -141,12 +141,15 @@ async def update_product(
             {"$set": product.to_dict()}
         )
 
+        logger.info(f"Product updated successfully: {product.to_dict()}")
+
         # Fetch the updated product
         updated_product = await db.products.find_one({"_id": product_id})
 
         # Convert ObjectId fields to strings
         updated_product = convert_objectid_to_str(updated_product)
 
+        logger.info(f"Product updated: {updated_product}")
         return {
             "message": "Product updated successfully.",
             "product": updated_product

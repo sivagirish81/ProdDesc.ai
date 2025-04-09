@@ -154,36 +154,52 @@ function ContentPreview() {
       
       let updatedProduct = { ...product };
 
-      if (typeof field === "string" && field.split('.').length === 2) {
-        const email = { 
-          ...product.marketing_copy.email, 
-          [field.split('.')[1]]: updatedFieldContent 
-        };
-        updatedProduct = { 
-          ...product, 
-          marketing_copy: { 
-            ...product.marketing_copy, 
-            email : email // Correctly update the `email` key
-          } 
-        };
-      }
-
-      if (typeof field === "string" && field.split('.').length === 2) {
-        const email_copy = { 
-          ...product.marketing_copy.email, 
-          [field.split('.')[1]]: updatedFieldContent 
-        };
-        updatedProduct = { 
-          ...product, 
-          marketing_copy: { 
-            ...product.marketing_copy, email_copy 
-          } 
-        };
-      }
-
-      if (typeof field === "string" && field.split('.').length === 1) {
+      if (field.split('.').length === 1) {
         updatedProduct = { ...product, [field]: updatedFieldContent };
       }
+
+      else if (field.split('.').length === 2) {
+        const [parentField, childField] = field.split('.');
+    
+        if (parentField === 'marketing_copy' && childField === 'email') {
+            // Directly update the email field as a string
+            updatedProduct = {
+                ...product,
+                marketing_copy: {
+                    ...product.marketing_copy,
+                    email: updatedFieldContent, // Assign updatedFieldContent directly
+                },
+            };
+        } else {
+            // Handle other nested fields dynamically
+            const updatedNestedField = {
+                ...product[parentField],
+                [childField]: updatedFieldContent,
+            };
+    
+            updatedProduct = {
+                ...product,
+                [parentField]: updatedNestedField,
+            };
+        }
+    }
+
+      else if (field.split('.').length === 3) {
+        const social_media_copy = {
+            ...product.marketing_copy.social_media,
+            [field.split('.')[2]]: updatedFieldContent,
+        };
+
+        updatedProduct = {
+            ...product,
+            marketing_copy: {
+                ...product.marketing_copy,
+                social_media: social_media_copy,
+            },
+        };
+      }
+
+      
       await updateProduct(productId, updatedProduct); // Save to database
       setProduct(updatedProduct); // Update local state
       setIsEditing(false);
@@ -221,8 +237,10 @@ function ContentPreview() {
       }
   
       const data = await response.json();
+      console.log('Generated content:', data.generated_content);
       setEditedContent(data.generated_content); // Set the generated content for editing
       setIsEditing(true); // Enable editing mode
+      console.log('test');
     } catch (error) {
       console.error('Error generating content:', error);
       setError('Failed to generate content');
