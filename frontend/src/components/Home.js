@@ -187,13 +187,6 @@ function Home() {
                   >
                     Preview
                   </Button>
-                  <Button
-                    size="small"
-                    startIcon={<ImageIcon />}
-                    onClick={() => handleImageClick(product.id)}
-                  >
-                    Images
-                  </Button>
                 </CardActions>
               </Card>
             </Grid>

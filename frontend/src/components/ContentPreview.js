@@ -39,6 +39,7 @@ function ContentPreview() {
   const [activeSubTab, setActiveSubTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
+  const [editedContent1, setEditedContent1] = useState('');
   const [background, setBackground] = useState('white');
   const [lighting, setLighting] = useState('studio');
   const [angle, setAngle] = useState('front');
@@ -105,6 +106,12 @@ function ContentPreview() {
     setEditedContent(currentContent || '');
   };
 
+  const handleMultiEditClick = (currentContent1, currentContent2) => {
+    setIsEditing(true);
+    setEditedContent(currentContent1 || '');
+    setEditedContent1(currentContent2 || '');
+  };
+
   const handleCopy = (content) => {
     if (!content) {
       console.error("No content to copy.");
@@ -119,6 +126,22 @@ function ContentPreview() {
       });
   };
 
+  const handleMultiSaveClick = async (field1, field2) => {
+    try {
+      let updatedProduct = { ...product };
+      updatedProduct = { ...product, [field1]: editedContent };
+      updatedProduct = { ...updatedProduct, [field2]: editedContent1 };
+      console.log('edditedContent1', editedContent1);
+      console.log('edditedContent', editedContent);
+      await updateProduct(productId, updatedProduct); // Save to database
+      setProduct(updatedProduct); // Update local state
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving product:', error);
+      setError('Failed to save changes');
+    }
+  };
+
   const handleSaveClick = async (field) => {
     try {
       let updatedFieldContent = editedContent;
@@ -130,8 +153,8 @@ function ContentPreview() {
       }
       
       let updatedProduct = { ...product };
-      
-      if (field.split('.').length === 2) {
+
+      if (typeof field === "string" && field.split('.').length === 2) {
         const email = { 
           ...product.marketing_copy.email, 
           [field.split('.')[1]]: updatedFieldContent 
@@ -145,7 +168,7 @@ function ContentPreview() {
         };
       }
 
-      if (field.split('.').length === 2) {
+      if (typeof field === "string" && field.split('.').length === 2) {
         const email_copy = { 
           ...product.marketing_copy.email, 
           [field.split('.')[1]]: updatedFieldContent 
@@ -158,7 +181,7 @@ function ContentPreview() {
         };
       }
 
-      if (field.split('.').length === 1) {
+      if (typeof field === "string" && field.split('.').length === 1) {
         updatedProduct = { ...product, [field]: updatedFieldContent };
       }
       await updateProduct(productId, updatedProduct); // Save to database
@@ -393,9 +416,6 @@ function ContentPreview() {
                   <Typography color="text.secondary">No features available</Typography>
                 )}
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('features')} sx={{ ml: 2 }}>
-                    Generate
-                  </Button>
                   {isEditing && (
                     <Button variant="outlined" color="error" onClick={handleRevertClick}>
                       Revert
@@ -445,9 +465,6 @@ function ContentPreview() {
                 </IconButton>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('materials')} sx={{ ml: 2 }}>
-                    Generate
-                  </Button>
                   {isEditing && (
                     <Button variant="outlined" color="error" onClick={handleRevertClick}>
                       Revert
@@ -497,9 +514,6 @@ function ContentPreview() {
                 </IconButton>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('tags')} sx={{ ml: 2 }}>
-                    Generate
-                  </Button>
                   {isEditing && (
                     <Button variant="outlined" color="error" onClick={handleRevertClick}>
                       Revert
@@ -622,10 +636,10 @@ function ContentPreview() {
                   multiline
                   rows={4}
                   label="SEO Description"
-                  value={editedContent}
-                  onChange={(e) => setEditedContent(e.target.value)}
+                  value={editedContent1}
+                  onChange={(e) => setEditedContent1(e.target.value)}
                 />
-                <Button variant="contained" color="primary" onClick={() => handleSaveClick('seo_data')} sx={{ mt: 2 }}>
+                <Button variant="contained" color="primary" onClick={() => handleMultiSaveClick('seo_title', 'seo_description')} sx={{ mt: 2 }}>
                   Save
                 </Button>
               </>
@@ -648,15 +662,12 @@ function ContentPreview() {
                 </IconButton>
               </Box>
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('seo_data')} sx={{ ml: 2 }}>
-                    Generate
-                  </Button>
                   {isEditing && (
                     <Button variant="outlined" color="error" onClick={handleRevertClick}>
                       Revert
                     </Button>
                   )}
-                  <Button variant="outlined" onClick={() => handleEditClick(`${product.seo_title}\n${product.seo_description}`)}>
+                  <Button variant="outlined" onClick={() => handleMultiEditClick(product.seo_title,product.seo_description)}>
                     Edit
                   </Button>
                 </Box>
