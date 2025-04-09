@@ -52,7 +52,6 @@ async def get_current_user(
     """Get current user from token"""
     try:
         # Decode token
-        logger.info(f"Decoding token: {token}")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         if not user_id:

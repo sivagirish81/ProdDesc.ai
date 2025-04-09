@@ -23,7 +23,7 @@ class OpenAIService:
     def __init__(self):
         self.client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.model = "gpt-4o-mini-2024-07-18"
-        self.image_model = "dall-e-3"
+        self.image_model = os.getenv("IMAGE_GEN_MODEL", "dall-e-3")
         self.upload_folder = os.path.join(os.getcwd(), "uploads", "images")
         self.base_url = os.getenv("BASE_URL", "http://localhost:8000")
 

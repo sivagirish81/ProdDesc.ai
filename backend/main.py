@@ -11,6 +11,7 @@ import os
 from dotenv import load_dotenv
 from database import init_db
 import logging
+import uvicorn
 
 # Load environment variables
 load_dotenv()
@@ -60,5 +61,4 @@ async def protected_route(current_user: User = Depends(get_current_user)):
     return {"message": f"Hello {current_user.full_name}, this is a protected route!"}
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000) 

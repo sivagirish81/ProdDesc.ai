@@ -132,6 +132,20 @@ function ContentPreview() {
       let updatedProduct = { ...product };
       
       if (field.split('.').length === 2) {
+        const email = { 
+          ...product.marketing_copy.email, 
+          [field.split('.')[1]]: updatedFieldContent 
+        };
+        updatedProduct = { 
+          ...product, 
+          marketing_copy: { 
+            ...product.marketing_copy, 
+            email : email // Correctly update the `email` key
+          } 
+        };
+      }
+
+      if (field.split('.').length === 2) {
         const email_copy = { 
           ...product.marketing_copy.email, 
           [field.split('.')[1]]: updatedFieldContent 
@@ -139,23 +153,8 @@ function ContentPreview() {
         updatedProduct = { 
           ...product, 
           marketing_copy: { 
-            ...product.marketing_copy, email_copy // Corrected here to use 'email' instead of 'email_copy'
+            ...product.marketing_copy, email_copy 
           } 
-        };
-      }
-
-      if (field.split('.').length === 3) {
-        const social_media_copy = {
-            ...product.marketing_copy.social_media,
-            [field.split('.')[2]]: updatedFieldContent,
-        };
-
-        updatedProduct = {
-            ...product,
-            marketing_copy: {
-                ...product.marketing_copy,
-                social_media: social_media_copy,
-            },
         };
       }
 
