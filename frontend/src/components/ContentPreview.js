@@ -25,6 +25,7 @@ import {
   Snackbar,
   Alert as MuiAlert,
 } from '@mui/material';
+import ContentCopy from '@mui/icons-material/ContentCopy';
 import { fetchProduct, updateProduct } from '../services/api';
 
 function ContentPreview() {
@@ -104,8 +105,18 @@ function ContentPreview() {
     setEditedContent(currentContent || '');
   };
 
-  const sanitizeInput = (input) => {
-    return input.replace(/[\uD800-\uDFFF]/g, ''); // Remove surrogate pairs
+  const handleCopy = (content) => {
+    if (!content) {
+      console.error("No content to copy.");
+      return;
+    }
+    navigator.clipboard.writeText(content)
+      .then(() => {
+        console.log("Content copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy content: ", err);
+      });
   };
 
   const handleSaveClick = async (field) => {
@@ -324,12 +335,22 @@ function ContentPreview() {
             </>
           ) : (
             <>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
               <Typography paragraph>
                 <strong>Basic Description:</strong> {product.basic_description || 'No basic description available.'}
               </Typography>
+              <IconButton onClick={() => handleCopy(product.basic_description)}>
+                <ContentCopy />
+              </IconButton>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
               <Typography paragraph>
                 <strong>Detailed Description:</strong> {product.detailed_description || 'No detailed description available.'}
               </Typography>
+              <IconButton onClick={() => handleCopy(product.detailed_description)}>
+                <ContentCopy />
+              </IconButton>
+            </Box>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button
                   variant="outlined"
@@ -408,6 +429,7 @@ function ContentPreview() {
               </>
             ) : (
               <>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 {product.materials && product.materials.length > 0 ? (
                   <ul>
                     {product.materials.map((material, index) => (
@@ -419,6 +441,10 @@ function ContentPreview() {
                 ) : (
                   <Typography color="text.secondary">No materials available</Typography>
                 )}
+                <IconButton onClick={() => handleCopy(product.materials)} sx={{ color: '#3498db' }}>
+                  <ContentCopy />
+                </IconButton>
+                </Box>
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                   <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('materials')} sx={{ ml: 2 }}>
                     Generate
@@ -455,6 +481,7 @@ function ContentPreview() {
               </>
             ) : (
               <>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 {product.tags && product.tags.length > 0 ? (
                   <ul>
                     {product.tags.map((tag, index) => (
@@ -466,6 +493,10 @@ function ContentPreview() {
                 ) : (
                   <Typography color="text.secondary">No tags available</Typography>
                 )}
+                <IconButton onClick={() => handleCopy(product.tags)} sx={{ color: '#3498db' }}>
+                  <ContentCopy />
+                </IconButton>
+                </Box>
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                   <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('tags')} sx={{ ml: 2 }}>
                     Generate
@@ -601,12 +632,22 @@ function ContentPreview() {
               </>
             ) : (
               <>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 <Typography>
                   <strong>Title:</strong> {product.seo_title || 'No SEO title available'}
                 </Typography>
+                <IconButton onClick={() => handleCopy(product.seo_title)} sx={{ color: '#3498db' }}>
+                  <ContentCopy />
+                </IconButton>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 <Typography>
                   <strong>Description:</strong> {product.seo_description || 'No SEO description available'}
                 </Typography>
+                <IconButton onClick={() => handleCopy(product.seo_description)} sx={{ color: '#3498db' }}>
+                  <ContentCopy />
+                </IconButton>
+              </Box>
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                   <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('seo_data')} sx={{ ml: 2 }}>
                     Generate
@@ -652,9 +693,14 @@ function ContentPreview() {
             </>
           ) : (
             <>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
               <Typography
                sx={{ whiteSpace: 'pre-line' }}
               >{product.marketing_copy.email || 'No email copy available'}</Typography>
+              <IconButton onClick={() => handleCopy(product.marketing_copy.email)} sx={{ color: '#3498db' }}>
+                <ContentCopy />
+              </IconButton>
+            </Box>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.email')} sx={{ ml: 2 }}>
                     Generate
@@ -689,9 +735,14 @@ function ContentPreview() {
             </>
           ) : (
             <>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
               <Typography
                sx={{ whiteSpace: 'pre-line' }}
               >{product.marketing_copy.social_media.instagram || 'No Instagram copy available'}</Typography>
+              <IconButton onClick={() => handleCopy(product.marketing_copy.social_media.instagram )} sx={{ color: '#3498db' }}>
+                <ContentCopy />
+              </IconButton>
+            </Box>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.instagram')} sx={{ ml: 2 }}>
                     Generate
@@ -726,9 +777,14 @@ function ContentPreview() {
             </>
           ) : (
             <>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
               <Typography
                sx={{ whiteSpace: 'pre-line' }}
               >{product.marketing_copy.social_media.facebook || 'No Facebook copy available'}</Typography>
+              <IconButton onClick={() => handleCopy(product.marketing_copy.social_media.facebook )} sx={{ color: '#3498db' }}>
+                <ContentCopy />
+              </IconButton>
+            </Box>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.facebook')} sx={{ ml: 2 }}>
                     Generate
@@ -763,9 +819,14 @@ function ContentPreview() {
             </>
           ) : (
             <>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
               <Typography
                sx={{ whiteSpace: 'pre-line' }}
               >{product.marketing_copy.social_media.linkedin || 'No LinkedIn copy available'}</Typography>
+              <IconButton onClick={() => handleCopy(product.marketing_copy.social_media.linkedin )} sx={{ color: '#3498db' }}>
+                <ContentCopy />
+              </IconButton>
+            </Box>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.linkedin')} sx={{ ml: 2 }}>
                     Generate
@@ -800,9 +861,14 @@ function ContentPreview() {
             </>
           ) : (
             <>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
               <Typography
                sx={{ whiteSpace: 'pre-line' }}
               >{product.marketing_copy.social_media.twitter || 'No Tweet available'}</Typography>
+              <IconButton onClick={() => handleCopy(product.marketing_copy.social_media.twitter )} sx={{ color: '#3498db' }}>
+                <ContentCopy />
+              </IconButton>
+            </Box>
               <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={() => handleGenerateClick('marketing_copy.social_media.twitter')} sx={{ ml: 2 }}>
                     Generate
